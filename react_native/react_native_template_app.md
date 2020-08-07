@@ -7,7 +7,7 @@
    1. yarn add @react-navigation/native --- 279 Kb
    1. yarn add react-native-reanimated --- 384 Kb
    1. yarn add react-native-screens --- 254 Kb
-   1. uarn add react-native-safe-area-context --- 118 Kb
+   1. yarn add react-native-safe-area-context --- 118 Kb
    1. yarn add @react-native-community/masked-view --- 56 Kb
    1. yarn add react-native-gesture-handler --- 425 Kb
 
@@ -16,7 +16,6 @@
          1. Make changes to /android/app/src/main/java/MainActivity.java
 
          ```java
-
                  Imports section
 
                  import com.facebook.react.ReactActivityDelegate;
@@ -87,7 +86,6 @@
             1. execute the plugin by adding the following to the very bottom of the /android/app/build.gradle file:
 
             ```java
-
             apply plugin: 'com.google.gms.google-services'
             ```
 
@@ -105,14 +103,12 @@
             1. open the /ios/{projectName}/AppDelegate.m file, and add the following lines
 
             ```objectivec
-
             #import <Firebase.h>
             ```
 
             Within the didFinishLaunchingWithOptions method, add the configure method:
 
             ```objectivec
-
             - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
               if ([FIRApp defaultApp] == nil) {
                 [FIRApp configure];
@@ -128,7 +124,6 @@
             1. Android – add below to app level gradle file
 
             ```java
-
                 implementation 'com.google.firebase:firebase-auth:19.3.1
             ```
 
@@ -139,7 +134,6 @@
    yarn add react-native-unimodules 1. iOS config 1. in iOS/Podfile:
 
    ```objectivec
-
    platform :ios, '10.0'
    use_unimodules!
    require_relative '../node_modules/react-native-unimodules/cocoapods.rb'
@@ -148,7 +142,6 @@
    1. iOS/appname/<AppDelegate.h>
 
    ```objectivec
-
    #import <UMReactNativeAdapter/UMModuleRegistryAdapter.h>
    @property (nonatomic, strong) UMModuleRegistryAdapter *moduleRegistryAdapter;
    ```
@@ -156,7 +149,6 @@
    1. iOS/appname/AppDelegate.m
 
    ```objectivec
-
    #import <UMCore/UMModuleRegistry.h>
    #import <UMReactNativeAdapter/UMNativeModulesProxy.h>
    #import <UMReactNativeAdapter/UMModuleRegistryAdapter.h>
@@ -177,7 +169,6 @@
       1. At the top add
 
       ```java
-
       apply from: '../node_modules/react-native-unimodules/gradle.groovy'
       ```
 
