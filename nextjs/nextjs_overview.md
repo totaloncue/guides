@@ -43,8 +43,8 @@ npm run dev
 1. Pages are associated with a route based on filename
 
 ```javascript
-export default fucntion FirstPost() {
-    return <h1>First Post</h1>
+export default function FirstPost() {
+  return <h1>First Post</h1>;
 }
 ```
 
@@ -81,7 +81,7 @@ import Head from "next/head";
 ## CSS
 
 1. Built-in support for [styled-jsx](https://github.com/vercel/styled-jsx)
-1. Can also use other populer CSS-in-JS libs like styled-components and emotion
+1. Can also use other popular CSS-in-JS libs like styled-components and emotion
 1. Support for CSS and Sass
 1. Support for Tailwind
 1. Support for CSS Modules
@@ -106,7 +106,7 @@ export default function App({ Component, pageProps }) {
 1. Add global CSS files by importing into '\_app.js'
    1. Cannot import global CSS anywhere else
    1. Can place global CSS file anywhere and use any name
-   1. Reco: top-level 'styles' dir with 'global.css' inside
+   1. Recommendation: top-level 'styles' dir with 'global.css' inside
 
 ## Pre-rendering
 
@@ -183,7 +183,7 @@ export default function App({ Component, pageProps }) {
    1. Example from Next.js learning starter -- generate pages at path called /posts/\<id> where \<id> is dynamic
       1. Create a page at /pages/posts\[id].js with:
          1. React component to render the page
-         1. getStaticPaths whcih returns an array of possible values of id
+         1. getStaticPaths which returns an array of possible values of id
          1. getStaticProps which fetches necessary data for the post with id
 1. Other topics of note
    1. Fallback
@@ -221,8 +221,8 @@ export default function App({ Component, pageProps }) {
 
    1. Created by Next.js Team
    1. Auto builds and deploys from git repo branches
-   1. Pages that use SSG witll be auto served from custom Vercel CDN
-   1. Pages that use SSR and API routes become isolage Serverless Functiions
+   1. Pages that use SSG will be auto served from custom Vercel CDN
+   1. Pages that use SSR and API routes become isolate Serverless Functions
    1. Supports:
       1. Custom domains
       1. Environment variables
@@ -249,7 +249,7 @@ export default function App({ Component, pageProps }) {
    npm run start
    ```
 
-   1. The start script can be customised with a port parameter
+   1. The start script can be customized with a port parameter
 
 ## Folder structure
 

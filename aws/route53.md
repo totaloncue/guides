@@ -52,7 +52,7 @@
          1. .mobi = \$12
          1. .org = \$12
 
-## F.A.Q.
+## F.A.Q
 
 1. What is DNS?
    1. Translates human readable domain names to machine readable IP addresses
