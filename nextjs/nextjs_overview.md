@@ -257,3 +257,9 @@ export default function App({ Component, pageProps }) {
    1. Each file in this folder corresponds to a route
    1. public/index.js is \<website_name>/
 1. public
+
+## Adding Custom Packages
+
+1.
+
+## Debugging apps
