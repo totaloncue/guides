@@ -4,5 +4,22 @@
       "path": "."
     }
   ],
-  "settings": {}
+  "settings": {
+    "cSpell.words": [
+      "Certbot",
+      "Onsen",
+      "Paginator",
+      "Tootltip",
+      "autoupdates",
+      "bnext",
+      "bprev",
+      "firewalld",
+      "flexbox",
+      "flexbugs",
+      "proto",
+      "systemctl",
+      "tailwindcss",
+      "toport"
+    ]
+  }
 }

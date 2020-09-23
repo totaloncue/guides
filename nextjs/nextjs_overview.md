@@ -263,3 +263,20 @@ export default function App({ Component, pageProps }) {
 1.
 
 ## Debugging apps
+
+## Special files
+
+1. \_app.js
+
+   1. Override the default App component used to initialize pages
+   1. Location: ./pages/\_app.js
+   1. Potential uses
+      1. Persistent layout across pages
+      1. Persistent state across pages
+      1. Inject additional data into pages
+      1. Global CSS
+
+1. \_document.js
+   1. Augment app's `<html>` and `<body>`tags
+   1. Location: ./pages/\_document.js.
+   1. [Reference](https://nextjs.org/docs/advanced-features/custom-document)

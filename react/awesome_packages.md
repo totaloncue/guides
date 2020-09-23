@@ -18,7 +18,6 @@
 1. React Intl
 1. Tailwind UI
 1. React-motion
-1.
 
 ## UI
 
@@ -60,7 +59,7 @@
 
 ## Photo/Image
 
-#3 Icons
+## Icons
 
 ## Paginator
 
