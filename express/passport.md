@@ -1,5 +1,7 @@
 # PassportJS Overview (with Express apps)
 
+[StackOverflow Tag References](https://stackoverflow.com/questions/tagged/passport.js?tab=Votes)
+
 1. Authentication middleware for Node
 1. Single purpose -- to authenticate requests
 1. Supports a variety of auth mechanisms or 'strategies'

@@ -22,8 +22,14 @@
    sudo firewall-cmd --zone=public --add-service=http
    ```
 
-1. Port forwarding example - forward all traffic on port 80 to port 12345
+1. Port forwarding example - forward all traffic on port 80 to port 3000
 
    ```shell
-   sudo firewall-cmd --zone="public" --add-forward-port=port=80:proto=tcp:toport=12345
+   sudo firewall-cmd --zone="public" --add-forward-port=port=80:proto=tcp:toport=3000
+   ```
+
+1. List all current rules
+
+   ```shell
+   sudo firewall-cmd --zone=public list-all
    ```
