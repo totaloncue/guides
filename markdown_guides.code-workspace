@@ -20,7 +20,9 @@
       "proto",
       "systemctl",
       "tailwindcss",
-      "toport"
-    ]
+      "toport",
+      "untrusted"
+    ],
+    "editor.formatOnSave": true
   }
 }

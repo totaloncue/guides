@@ -6,6 +6,11 @@
 1. Single purpose -- to authenticate requests
 1. Supports a variety of auth mechanisms or 'strategies'
 
+## Prerequisites
+
+1. Needs express-session to work for persistent sessions
+    1. May also need cookie-parser
+
 ## Authentication
 
 1. Call passport.authenticate() and specify strategy to employ
@@ -31,7 +36,7 @@
     1. Often combined with redirects to display status info to the user
 
     ```javascript
-    app.post('/login', 
+    app.post('/login',
     passport.authenticate('local', { successRedirect: '/',
                                    failureRedirect: '/login',
                                    failureFlash: true })
@@ -55,7 +60,7 @@
     1. Sessions (optional)
 
 1. Verify callbacks
-    1. All strategies need verify callbacks 
+    1. All strategies need verify callbacks
     1. Purpose of verify callback is to find the user that possesses a set of credentials
     1. When Passport authenticates:
         1. It parses the credentials contained in a request
@@ -72,7 +77,7 @@
         return done(null, false)
         ```
 
-        1. If an exception occurred while verifying the credentials, invoke donw with an error
+        1. If an exception occurred while verifying the credentials, invoke done with an error
 
         ```javascript
         return done(err)
@@ -92,7 +97,6 @@
     app.use(passport.initialize());
     app.use(passport.session());
     ```
-
 
 ## Username & Password
 

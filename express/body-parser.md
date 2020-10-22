@@ -6,9 +6,10 @@
 1. Does NOT handle multipart bodies
 1. Provides following parsers
    1. JSON body parser
-   1. Raw 
-   1. Text 
-   1. URL-encoded form 
+   1. Raw
+   1. Text
+   1. URL-encoded form
+1. Not needed for express 4.16 and above -- functionality already bundled into Express
 
 ## Simple setup
 
