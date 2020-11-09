@@ -25,11 +25,12 @@
 1. Port forwarding example - forward all traffic on port 80 to port 3000
 
    ```shell
-   sudo firewall-cmd --zone="public" --add-forward-port=port=80:proto=tcp:toport=3000
+   sudo firewall-cmd --zone="public" --add-forward-port=port=80:proto=tcp:toport=3000 --permanent
+   sudo firewall-cmd --zone="public" --add-forward-port=port=443:proto=tcp:toport=13000 --permanent
    ```
 
 1. List all current rules
 
    ```shell
-   sudo firewall-cmd --zone=public list-all
+   sudo firewall-cmd --zone=public --list-all
    ```

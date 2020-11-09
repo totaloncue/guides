@@ -12,6 +12,7 @@
 1. serve-favicon
 1. timeout
 1. csurf
+1. express-rate-limit
 
 ## List of utility modules
 

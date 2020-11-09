@@ -1,9 +1,9 @@
 {
   "folders": [
-    {
-      "path": "."
-    }
-  ],
+	{
+		"path": "."
+	}
+],
   "settings": {
     "cSpell.words": [
       "Certbot",
@@ -17,11 +17,15 @@
       "flexbox",
       "flexbugs",
       "genid",
+      "haproxy",
+      "letsencrypt",
       "proto",
+      "roundrobin",
       "systemctl",
       "tailwindcss",
       "toport",
-      "untrusted"
+      "untrusted",
+      "vbernat"
     ],
     "editor.formatOnSave": true
   }
