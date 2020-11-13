@@ -107,5 +107,16 @@
    1. Although possible, most containers run a single process
    1. Command to be executed when starting container specified with ENTRYPOINT in Dockerfile or RUN command
 1. How much of a system's resources can a container take up?
+   1. [Reference on resource constraints](https://docs.docker.com/config/containers/resource_constraints/)
    1. By default, can access all system resources
-   1. Can be configured to take up a max % of RAM and CPU
+   1. Can be configured to take up a max % of RAM
+   1. Memory example: -m 256m (256 MB memory limit) or --memory=256m
+   1. Memory swap:
+      1. Only relevant if --memory also set
+      1. Uses swap when container has exhausted all memory available to it
+      1. Difference between --memory-swap and --memory == swap available to container
+      1. --memory-swap unset => swap == amount specified in --memory
+      1. --memory-swap = -1 => container has unlimited access to swap
+1. How do we auto restart containers?
+   1. [Reference](https://docs.docker.com/config/containers/start-containers-automatically/)
+   1. --restart no/on-failure/always/unless stopped
