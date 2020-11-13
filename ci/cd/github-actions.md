@@ -36,3 +36,5 @@
 1. Runners
    1. Servers that have the Github Actions runner app installed
    1. Can be self-hosted
+
+## Secrets
