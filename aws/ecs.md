@@ -28,3 +28,9 @@ Container management service that makes it easy to run, stop and manage containe
    1. Starts and stops tasks whenever it receives a request from ECS
 
 ## Clusters
+
+## Steps taken when launching a service
+
+## How to Register an EC2 instance with ECS
+
+## Service discovery in ECS
