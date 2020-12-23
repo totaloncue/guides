@@ -64,7 +64,8 @@ sudo ln -s /snap/bin/certbot /usr/bin/certbot
    1. Other web server running
 
    ```shell
-   sudo certbot certonly --webroot
+   sudo certbot certonly --standalone -d <domain-name> --preferred-challenges http --http-01-port <port opened on haproxy for letsencrypt>
+   sudo certbot certonly --standalone -d api.courtupapp.xyz --preferred-challenges http --http-01-port 54321 --dry-run
    ```
 
 1. Install certificate in config file for server
@@ -75,6 +76,9 @@ sudo ln -s /snap/bin/certbot /usr/bin/certbot
    ```shell
    sudo chown $(whoami):<group_name> /etc/letsencrypt/live/ -R
    sudo chown $(whoami):<group_name> /etc/letsencrypt/archive/ -R
+   e.g.
+   sudo chown $(whoami):ubuntu /etc/letsencrypt/live/ -R
+   sudo chown $(whoami):ubuntu /etc/letsencrypt/archive/ -R
    ```
 
 1. Test auto-renewal

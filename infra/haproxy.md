@@ -372,3 +372,8 @@ backend blog-backend
         server blog1 0.0.0.0:13000 check
 
 ```
+
+## Outstanding Questions
+
+1. How can a single HAProxy server handle multiple SSL certificates?
+1. Can multiple HAProxy servers run on the same machine

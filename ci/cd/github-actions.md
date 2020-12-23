@@ -38,3 +38,45 @@
    1. Can be self-hosted
 
 ## Secrets
+
+## Self-hosted runners
+
+1. Currently the only option for ARM architectures as Github only supports x86 architectures on its own runners
+1. This is much easier than it initially appears
+1. [Github reference](https://docs.github.com/en/free-pro-team@latest/actions/hosting-your-own-runners)
+1. Log files are kept in the \_diag folder
+   1. Logs are quite large => prune regularly
+
+### Setup on Linux ARM64
+
+1. Download
+
+```shell
+// Create a folder
+mkdir actions-runner && cd actions-runner
+// Download the latest runner package
+curl -O -L https://github.com/actions/runner/releases/download/v2.274.2/actions-runner-linux-arm64-2.274.2.tar.gz
+// Extract the installer
+tar xzf ./actions-runner-linux-arm64-2.274.2.tar.gz
+```
+
+1. Configure
+
+```shell
+// Create the runner and start the configuration experience
+./config.sh --url https://github.com/totaloncue/simple-express-server --token AAFNUJCO3XLJGTMOARXUBZK7ZIAYU
+// Last step, run it!
+./run.sh
+```
+
+1. Using your self-hosted runner
+
+```yaml
+runs-on: self-hosted
+```
+
+1. remove the runner
+
+```shell
+./config.sh remove --token AAFNUJH2YVMEICIXLER6UX27ZIDPY
+```
