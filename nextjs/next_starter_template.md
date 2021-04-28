@@ -2,64 +2,73 @@
 
 Required packages and instructions for a starter template using NextJs
 
-## Packages to Install
+## Tailwind CSS V2 Starter with NextJS 10
 
-1. MaterialUI
-   1. CSS Baseline
+[Reference](https://tailwindcss.com/docs/guides/nextjs)
 
-## CSS Methodology
+[Canonical Example](https://github.com/vercel/next.js/tree/canary/examples/with-tailwindcss)
 
-1. Apply direct CSS into Material UI OR
-1. Apply styled-components to Material UI
-1. Use Tailwind CSS
+1. Initialize NextJS app
 
-## Tailwind CSS Starter
+With yarn
 
-1. yarn add tailwindcss
-1. yarn add postcss-preset-env
-1. yarn add postcss-flexbugs-fixes
+```shell
+yarn create next-app project-name
+```
 
-### Configuration
+With npm
 
-Configuration of tailwind.config.js
+```shell
+npx create-next-app project-name
+```
+
+1. Install Tailwind
+
+With Yarn
+
+```shell
+yarn add tailwindcss@latest postcss@latest autoprefixer@latest
+```
+
+With npm
+
+```shell
+npm install -D tailwindcss@latest postcss@latest autoprefixer@latest
+```
+
+1. Create Tailwind and PostCSS config files
+
+```shell
+npx tailwindcss init -p
+```
+
+OR
+
+1. Create tailwind.config.js at project root
 
 ```javascript
+// tailwind.config.js
 module.exports = {
-  future: {
-    removeDeprecatedGapUtilities: true,
-  },
-  purge: ["./components/**/*.{js,ts,jsx,tsx}", "./pages/**/*.{js,ts,jsx,tsx}"],
+  purge: [],
+  darkMode: false, // or 'media' or 'class'
   theme: {
-    extend: {
-      colors: {
-        "accent-1": "#333",
-      },
-    },
+    extend: {},
   },
-  variants: {},
+  variants: {
+    extend: {},
+  },
   plugins: [],
 };
 ```
 
-Configuration of postcss.config.js
+1. Create postcss.config.js at project root
 
 ```javascript
+// postcss.config.js
 module.exports = {
-  plugins: [
-    "tailwindcss",
-    "postcss-flexbugs-fixes",
-    [
-      "postcss-preset-env",
-      {
-        autoprefixer: {
-          flexbox: "no-2009",
-        },
-        stage: 3,
-        features: {
-          "custom-properties": false,
-        },
-      },
-    ],
-  ],
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
 };
 ```
