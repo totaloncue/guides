@@ -80,3 +80,41 @@ runs-on: self-hosted
 ```shell
 ./config.sh remove --token AAFNUJH2YVMEICIXLER6UX27ZIDPY
 ```
+
+### Setup as a service
+
+[Reference](https://docs.github.com/en/actions/hosting-your-own-runners/configuring-the-self-hosted-runner-application-as-a-service)
+
+Within the directory where the runner is installed:
+
+1. Install the service
+
+```shell
+sudo ./svc.sh install
+```
+
+1. Start the service
+
+```shell
+sudo ./svc.sh start
+```
+
+1. Check service status
+
+```shell
+sudo ./svc.sh status
+```
+
+1. Stop service
+
+```shell
+sudo ./svc.sh stop
+```
+
+1. Uninstall the service
+
+   First, stop the service, then:
+
+```shell
+sudo ./svc.sh uninstall
+```
