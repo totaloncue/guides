@@ -36,6 +36,21 @@
 1. Runners
    1. Servers that have the Github Actions runner app installed
    1. Can be self-hosted
+1. Expressions
+   1. Expressions must use the syntax ${{ <expression> }} everywhere except in an 'if' conditional in a workflow (as it is already an expression)
+      1. However, conditional if statements that use operators must still use the ${{<expression>}} syntax
+1. Contexts
+   1. Contexts allow access to information about workflow runs, runner environments, jobs and steps
+   1. Use the syntax ${{ <context> }}
+   1. Contexts vs default environment variables
+      1. Default environment variables exist **only** on the runner executing job
+      1. Contexts are available anywhere in the workflow, including outside of the runner used for execution
+1. Environment Variables
+   1. Default environment variables are available to every step in a workflow
+   1. Custom environment variables can be set in the workflow file
+      1. Can be specific to a step, job or entire workflow
+         1. jobs.<job_id>.steps[*].env, jobs.<job_id>.env, env keywords
+         1. When more than one environment variable is defined with the same name, GitHub uses the most specific environment variable
 
 ## Secrets
 
@@ -118,3 +133,9 @@ sudo ./svc.sh stop
 ```shell
 sudo ./svc.sh uninstall
 ```
+
+## F.A.Q.
+
+1. Where do jobs run?
+   1. When using Github hosted runners: each job runs in a fresh instance of a virtual environment specified by 'runs-on'
+   1. When using self-hosted runners, runner is chosen based on labels provided
