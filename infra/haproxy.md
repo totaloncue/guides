@@ -79,39 +79,39 @@ For newer versions, build from source:
 ## Basic Concepts
 
 1. Access Control Lists
-1. Test some condition => perform an action based on test result
+   1. Test some condition => perform an action based on test result
 1. Backend
-1. Set of servers that receive forwarded requests
+   1. Set of servers that receive forwarded requests
 1. Most basic form:
    1. Load balance algorithm to use
    1. List of servers and ports
 1. Frontend
-1. How requests should be forwarded to backends
-1. Contains the following:
-   1. A set of IP addresses and a port
-   1. ACLs
-   1. 'use_backend' rules
-      1. Define which backend to use depending on which ACL condition is matched
-      1. Can also include a default backend rule to handle every other case
+   1. How requests should be forwarded to backends
+   1. Contains the following:
+      1. A set of IP addresses and a port
+      1. ACLs
+      1. 'use_backend' rules
+         1. Define which backend to use depending on which ACL condition is matched
+         1. Can also include a default backend rule to handle every other case
 1. Load balancing types
-1. Layer 4 (Transport Layer) load balancing
-   1. Forward based on IP range and port
-1. Layer 7 (Application Layer) load balancing
-   1. Can make use of content of user's request
-   1. Can use this to run multiple apps under same domain and port
+   1. Layer 4 (Transport Layer) load balancing
+      1. Forward based on IP range and port
+   1. Layer 7 (Application Layer) load balancing
+      1. Can make use of content of user's request
+      1. Can use this to run multiple apps under same domain and port
 1. Load balancing algorithms
-1. roundrobin
-   1. selects servers in turns = default
-1. leastconn
-   1. selects server with least connections
-1. source
-   1. selects based on hash of source IP
-      1. => ensures a user will connect to the same server each time
+   1. roundrobin
+      1. selects servers in turns = default
+   1. leastconn
+      1. selects server with least connections
+   1. source
+      1. selects based on hash of source IP
+         1. => ensures a user will connect to the same server each time
 1. Sticky sessions
-1. For applications that require a user connects to the same backend server each time
-1. uses 'appsession' parameter in backend that requires it
+   1. For applications that require a user connects to the same backend server each time
+   1. uses 'appsession' parameter in backend that requires it
 1. Health checks
-1. Determine if a backend server is available to process requests
+   1. Determine if a backend server is available to process requests
 
 ### Configuration - Essential Sections and Keywords
 
@@ -174,36 +174,152 @@ For newer versions, build from source:
 
 1. Used to take actions based on content extracted from request, response or environment
 1. Typical actions:
-1. block a request
-1. select a backend
-1. add a header
+   1. block a request
+   1. select a backend
+   1. add a header
 1. No limit to number of ACLs
 1. Format
-1. acl <aclname> <criterion> [flags] [operator] [<value>] ...
+   1. acl <aclname> <criterion> [flags] [operator] [<value>] ...
 1. Data returned by sample fetch methods can be of following types:
-1. boolean
-1. integer
-1. IPV4 or IPV6 addresses
-1. string
-1. data block
-1. Returned data can be matched against following data types:
-1. boolean
-1. integer or integer range
-1. IP address/network
-1. string (exact, substring, suffix, prefix, subdir, domain)
-1. regular expression
-1. hex block
+   1. boolean
+   1. integer
+   1. IPV4 or IPV6 addresses
+   1. string
+   1. data block
+   1. Returned data can be matched against following data types:
+   1. boolean
+   1. integer or integer range
+   1. IP address/network
+   1. string (exact, substring, suffix, prefix, subdir, domain)
+   1. regular expression
+   1. hex block
 1. Flags
-1. -i: ignore case
-1. -m: use a specific pattern matching method
+   1. -i: ignore case
+   1. -m: use a specific pattern matching method
 
 ### Useful ACL Keywords
 
 1. path_beg -i /blog
-1. path begins with /blog and ignores case
+   1. path begins with /blog and ignores case
 1. hrd(host) -i
 1. src
 1. src_port
+
+## Maps
+
+[Introduction](https://www.haproxy.com/blog/introduction-to-haproxy-maps/)
+[Reference]()
+
+1. A HAProxy map is a file that stores key-value pairs for use by HAProxy at runtime
+
+Example of map file below:
+
+```shell
+# A comment begins with a hash sign
+static.example.com  be_static
+www.example.com     be_static
+
+# You can add additional comments, but they must be on a new line
+example.com         be_static
+api.example.com     be_api
+```
+
+1. HAProxy uses map files as lookup tables
+1. Two major benefits:
+   1. Map files can be scanned very quickly for most use cases
+   1. Map files can be changed dynamically at runtime
+      1. Map files are loaded into memory when HAProxy starts and can be modified at runtime without a reload
+1. A map 'converter' is a directive in the HAProxy config file that takes an input and provides an output based on a map file
+
+   1. Example
+
+   ```shell
+   use_backend %[req.hdr(host),lower,map(/etc/hapee-1.8/maps/hosts.map,be_static)]
+   ```
+
+   1. Takes up to two arguments
+   1. First is path to map file
+   1. Second is an optional argument that defines a default if no matching key is found in map file
+
+1. Map files can by dynamically edit at runtime, without causing disturbance to the HAProxy service by:
+   1. Edit the file using the runtime API and also save changes to disk
+   1. Editing the map file directy from disk and conduct a 'graceful/hitless reload' of HAProxy
+   1. Use the 'http-request set-map' directive within the HAProxy config and update map entries based on URL parameters in the request
+      1. Useful for making edits from a remote client
+
+### Use Cases
+
+1. Blue-green deployment
+   1. Deploy a new release of app onto a set of staging servers and then swap them with production servers
+1. Rate limiting by URL path
+
+   Example map
+
+   ```shell
+   /api/routeA  40
+   /api/routeB  20
+   ```
+
+   Example front end
+
+   ```shell
+   frontend api_gateway
+    bind :80
+    default_backend api_servers
+
+    # Set up stick table to track request rates
+    stick-table type binary len 8 size 1m expire 10s store http_req_rate(10s)
+
+    # Track client by base32+src (Host header + URL path + src IP)
+    http-request track-sc0 base32+src
+
+    # Check map file to get rate limit for path
+    http-request set-var(req.rate_limit)  path,map_beg(/etc/hapee-1.8/maps/rates.map)
+
+    # Client's request rate is tracked
+    http-request set-var(req.request_rate)  base32+src,table_http_req_rate(api_gateway)
+
+    # Subtract the current request rate from the limit
+    # If less than zero, set rate_abuse to true
+    acl rate_abuse var(req.rate_limit),sub(req.request_rate) lt 0
+
+    # Deny if rate abuse
+    http-request deny deny_status 429 if rate_abuse
+   ```
+
+## Stick Tables
+
+[Introduction](https://www.haproxy.com/blog/introduction-to-haproxy-stick-tables/)
+[Reference]()
+
+## Runtime API
+
+[Dynamic Scaling Reference](https://www.haproxy.com/blog/dynamic-scaling-for-microservices-with-runtime-api/)
+[Dynamic Configuration Reference](https://www.haproxy.com/blog/dynamic-configuration-haproxy-runtime-api/)
+
+1. Command Line Interface (CLI) available as a UNIX or TCP socket
+1. Provides ability to configure HAProxy dynamically at runtime without the need to restart or reload the service
+
+### Setup inside configuration
+
+### Use socat to interact with socket
+
+1. Install socat
+
+```shell
+sudo apt install socat
+```
+
+## Data Plane API
+
+1. Modern REST API to fully configure HAProxy
+   1. Dynamically add and configure frontends, backends and traffic routing logic
+   1. Manage stick tables, update logging endpoints and create SPOE filters
+   1. Almost entire configuration of load balancer can be configured using HTTP commands
+
+## Hitless Reloads
+
+[Guide](https://www.haproxy.com/blog/hitless-reloads-with-haproxy-howto/)
 
 ## SSL Termination
 
@@ -377,3 +493,42 @@ backend blog-backend
 
 1. How can a single HAProxy server handle multiple SSL certificates?
 1. Can multiple HAProxy servers run on the same machine
+
+## Bot Protection
+
+[Reference](https://www.haproxy.com/blog/bot-protection-with-haproxy/)
+
+1. Key Tools
+   1. ACLs
+   1. Maps
+   1. Stick tables
+1. Strategies
+   1. Anti-scraping
+      1. Behaviour pattern
+         1. Browse a lot of unique pages very quickly
+      1. Mitigation strategy
+         1. Observe the number of requests each client is making
+         1. Check how many of above requests are for pages client is visiting for the first time
+         1. If rate of requests above a threshold:
+            1. Flag user
+            1. Deny new requests/route to a new backend
+   1. Brute-force bots
+      1. Behaviour Pattern
+         1. Bots that attempt to brute-force a login page
+         1. Bots make POST requests and hit the same login URL repeatedly
+      1. Mitigation strategy
+         1. Track number of hits on relevant URL from each client
+         1. Block clients that cross some threshold rate of hits in a given time window
+   1. Vulnerability Scanners
+      1. Behaviour pattern
+         1. Generic scanners that probe site for many different paths looking for known vulnerable, third-party apps
+      1. Mitigation strategy
+         1. First line of defence is a Web Application Firewall (WAF)
+            1. [AWS example](https://aws.amazon.com/waf/)
+            1. Protect web apps and APIs against common web exploits and bots
+         1. In addtion, use stick tables and ACLs to detect and block vulnerability scanners
+            1. Typical behaviour of vulnerability scanners = attempt to access paths that do NOT exist, which results in 404 errors to the requests
+            1. Use 'http_err_rate' to measure the rate of errors per client
+            1. Block clients that are above a certain error rate threshold
+   1. Whitelisting good bots
+   1. Geolocation
