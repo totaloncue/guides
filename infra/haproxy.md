@@ -10,8 +10,11 @@
 
 1. High-Availability Proxy
 1. High-performance, TCP/HTTP load balancer and proxy server
+1. HAProxy is designed to isolate itself into a chroot jail during startup
+   1. => cannot perform any file-system access
+1. In HTTP mode, both request and response are fully analyzed and indexed
 
-## Installation
+## Installation without using Docker
 
 1. Ubuntu 20
 
@@ -76,15 +79,22 @@ For newer versions, build from source:
     sudo touch /var/lib/haproxy/stats
     ```
 
+## Installation with Docker
+
+```shell
+docker pull haproxy:2.3-alpine
+```
+
 ## Basic Concepts
 
 1. Access Control Lists
    1. Test some condition => perform an action based on test result
-1. Backend
-   1. Set of servers that receive forwarded requests
-1. Most basic form:
-   1. Load balance algorithm to use
-   1. List of servers and ports
+1. Load balancing types
+   1. Layer 4 (Transport Layer) load balancing
+      1. Forward based on IP range and port
+   1. Layer 7 (Application Layer) load balancing
+      1. Can make use of content of user's request
+      1. Can use this to run multiple apps under same domain and port
 1. Frontend
    1. How requests should be forwarded to backends
    1. Contains the following:
@@ -93,20 +103,19 @@ For newer versions, build from source:
       1. 'use_backend' rules
          1. Define which backend to use depending on which ACL condition is matched
          1. Can also include a default backend rule to handle every other case
-1. Load balancing types
-   1. Layer 4 (Transport Layer) load balancing
-      1. Forward based on IP range and port
-   1. Layer 7 (Application Layer) load balancing
-      1. Can make use of content of user's request
-      1. Can use this to run multiple apps under same domain and port
-1. Load balancing algorithms
-   1. roundrobin
-      1. selects servers in turns = default
-   1. leastconn
-      1. selects server with least connections
-   1. source
-      1. selects based on hash of source IP
-         1. => ensures a user will connect to the same server each time
+1. Backends
+   1. Set of servers that receive forwarded requests
+   1. Most basic form:
+      1. Load balance algorithm to use
+      1. List of servers and ports
+   1. Load balancing algorithms
+      1. roundrobin
+         1. selects servers in turns = default
+      1. leastconn
+         1. selects server with least connections
+      1. source
+         1. selects based on hash of source IP
+            1. => ensures a user will connect to the same server each time
 1. Sticky sessions
    1. For applications that require a user connects to the same backend server each time
    1. uses 'appsession' parameter in backend that requires it
@@ -115,7 +124,6 @@ For newer versions, build from source:
 
 ### Configuration - Essential Sections and Keywords
 
-1. Parameter sources
 1. command-line arguments, take highest precedence
 1. "globals" section, with following important keywords:
    1. ca-base
@@ -161,18 +169,19 @@ For newer versions, build from source:
       1. timeout server
       1. use_backend
 
-## Useful commands
+## Useful commands when running HAProxy standalone outside of Docker
 
 1. service haproxy reload
    1. graceful reload when config changes
 1. service haproxy restart
 1. systemctl start/stop/status haproxy
 1. sudo service haproxy configtest
-1. haproxy -c -V -f /etc/haproxy/haproxy.cfg
+1. Check configuration
+   1. haproxy -c -V -f /etc/haproxy/haproxy.cfg
 
-## ACLs
+## ACLs (Access Control Lists)
 
-1. Used to take actions based on content extracted from request, response or environment
+1. Take actions based on content extracted from request, response or environment
 1. Typical actions:
    1. block a request
    1. select a backend
@@ -208,6 +217,7 @@ For newer versions, build from source:
 ## Maps
 
 [Introduction](https://www.haproxy.com/blog/introduction-to-haproxy-maps/)
+
 [Reference]()
 
 1. A HAProxy map is a file that stores key-value pairs for use by HAProxy at runtime
@@ -292,7 +302,101 @@ api.example.com     be_api
 [Introduction](https://www.haproxy.com/blog/introduction-to-haproxy-stick-tables/)
 [Reference]()
 
-## Runtime API
+1. Fast in-memory storage for use by HAProxy
+1. Primarily used to track user activity across requests, with use cases including:
+   1. Sticky sessions i.e. stick a client to a particular server
+   1. Collect metrics
+   1. Rate limiting
+   1. Bot protection
+   1. Track data transferred on a per-client basis
+   1. Make other decisions based on state
+1. Key-value store with:
+   1. Key = identifier tracked across requests (e.g. client IP)
+   1. Values = counters that, mostly, are auto-calculated/incremented by HAProxy
+1. Sample analyses using stick tables:
+   1. API requests per API key in last 24 hours
+   1. TLS distribution of clients
+   1. If website has an embedded search field, what are the top search terms people are using
+   1. Number of pages accessed by a client in a given time window
+   1. Amount of data transferred in/out by a client in a given time window
+
+### Use cases
+
+1. Sticky sessions
+   1. Associate a specific server with a client using some information about the client (e.g. IP address)
+   1. Extremely useful if application sessions are stored in-memory on a server
+1. Bot detection
+   1. Request floods
+   1. Brute force login attacks
+   1. Vulnerability scanners
+   1. Web scrapers
+   1. Slow loris attacks
+1. Metric collection
+   1. Use the Runtime API to read and analyze stick table data from the command line
+
+### Directive syntax
+
+1. 'stick-table' directives can be defined in a frontend or backend
+1. The directive defines how much storage a stick table should use, how long data should be kept, and what data is to be observed
+1. Each frontend and backend can have only one attached stick table
+1. Standard technique is to:
+   1. define frontends and backends whose sole purpose is to store stick table
+   1. then use that stick-table elsewhere using the 'table' parameter
+
+#### Stick-table definition
+
+Example format
+
+```shell
+   stick-table type <type> size <size> expire <expire-time> store <metric-to-store>
+   stick-table type ip size 1m expire 10s store http_req_rate(10s)
+```
+
+1. <type> = class of data that is captured
+   1. ip
+   1. ipv6
+   1. integer
+      1. often used to store a client ID based on a cookie or header
+   1. string
+      1. commonly used for session IDs, API keys
+   1. binary
+      1. commonly used for combinations (e.g. IP + URL)
+1. <size> = number of entries the table can store (e.g. 1 million)
+1. <expire> = informs HAProxy when to remove a record/data
+1. <store> = declares value to be saved
+1. <nopurge> = instruct HAProxy to not remove entries if table is full
+1. <peers> = mechanism to sync with other nodes
+
+#### Tracking Data
+
+1. Post definition of a stick table, data can be tracked by using sticky counters 'sc0' to 'sc2'
+1. The build time variable MAX_SESS_STKCTR is used to define the maximum number of sticky counters
+   1. => if more sticky counters needed, a special HAProxy build will have to be used
+
+```shell
+backend st_src_global
+    stick-table type ip size 1m expire 10m store http_req_rate(10m)
+
+backend st_src_login
+    stick-table type ip size 1m expire 10m store http_req_rate(10m)
+
+backend st_src_api
+    stick-table type ip size 1m expire 10m store http_req_rate(10m)
+
+frontend fe_main
+    bind *:80
+    http-request track-sc0 src table st_src_global
+    http-request track-sc1 src table st_src_login if { path_beg /login }
+    http-request track-sc1 src table st_src_api if { path_beg /api }
+```
+
+### Memory considerations
+
+1. Each stick table entry takes ~50 bytes for housekeeping + size of key + size of counters = total
+
+## Dynamic Configuration
+
+### Runtime API
 
 [Dynamic Scaling Reference](https://www.haproxy.com/blog/dynamic-scaling-for-microservices-with-runtime-api/)
 [Dynamic Configuration Reference](https://www.haproxy.com/blog/dynamic-configuration-haproxy-runtime-api/)
@@ -300,9 +404,14 @@ api.example.com     be_api
 1. Command Line Interface (CLI) available as a UNIX or TCP socket
 1. Provides ability to configure HAProxy dynamically at runtime without the need to restart or reload the service
 
-### Setup inside configuration
+#### Setup inside configuration when using Docker
 
-### Use socat to interact with socket
+```shell
+stats socket ipv4@127.0.0.1:9999 level admin
+stats timeout 2m
+```
+
+#### Use socat to interact with Runtime API within Docker
 
 1. Install socat
 
@@ -310,16 +419,33 @@ api.example.com     be_api
 sudo apt install socat
 ```
 
-## Data Plane API
+Note that the version of socat in Ubuntu standard repositories does not support readline
+
+```shell
+echo "get map" | socat stdio tcp4-connect:127.0.0.1:9999
+echo "<command>" | socat stdio tcp4-connect:127.0.0.1:9999
+```
+
+Example of command to watch stats
+
+```shell
+echo "show stat" | socat stdio tcp4-connect:127.0.0.1:9999 | cut -d "," -f 1-2,5-10,34-36 | column -s, -t
+```
+
+### Data Plane API
 
 1. Modern REST API to fully configure HAProxy
    1. Dynamically add and configure frontends, backends and traffic routing logic
    1. Manage stick tables, update logging endpoints and create SPOE filters
    1. Almost entire configuration of load balancer can be configured using HTTP commands
 
-## Hitless Reloads
+### Hitless Reloads
 
 [Guide](https://www.haproxy.com/blog/hitless-reloads-with-haproxy-howto/)
+
+1. Triggered by sending a SIGURS1 signal to HAProxy process
+1. Unbinds from listening ports but continues to process existing connections
+1. Used for reload vs restart
 
 ## SSL Termination
 
@@ -338,11 +464,6 @@ sudo apt install socat
 1. Add below to frontend section
    1. http-request redirect scheme https code 301 unless { ssl_fc }
    1. http-response set-header Strict-Transport-Security "max-age=16000000; includeSubDomains; preload;"
-
-## Advanced Topics
-
-1. Hitless reloads
-1. Runtime API
 
 ## Sample config
 
@@ -493,6 +614,7 @@ backend blog-backend
 
 1. How can a single HAProxy server handle multiple SSL certificates?
 1. Can multiple HAProxy servers run on the same machine
+1. What is the appropriate way to use chroot within Docker?
 
 ## Bot Protection
 
