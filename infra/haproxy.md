@@ -10,9 +10,12 @@
 
 1. High-Availability Proxy
 1. High-performance, TCP/HTTP load balancer and proxy server
+1. Can operate at layer 4 (TCP) or layer 7 (HTTP)
+   1. In TCP mode, HAProxy simply forwards bidirectional traffic
+   1. In HTTP mode, HAProxy analyzes the protocol and can interact with it in multiple ways
 1. HAProxy is designed to isolate itself into a chroot jail during startup
    1. => cannot perform any file-system access
-1. In HTTP mode, both request and response are fully analyzed and indexed
+1.
 
 ## Installation without using Docker
 
@@ -124,50 +127,36 @@ docker pull haproxy:2.3-alpine
 
 ### Configuration - Essential Sections and Keywords
 
-1. command-line arguments, take highest precedence
-1. "globals" section, with following important keywords:
-   1. ca-base
-   1. chroot
-   1. crt-base
-   1. daemon
-   1. description
-   1. group
-   1. user
-   1. log
-   1. pidfile
-   1. setenv, resetenv, unsetenv, presetenv
-   1. stats
-   1. ssl-default-bind-ciphers
-   1. ssl-default-bind-ciphersuites
-   1. maxconn
-   1. max-ssl-conn
+1. 3 major sources of parameters used in HAProxy configuration:
+   1. command-line arguments, take highest precedence
+   1. configuration files
+   1. running process' environment
+
+#### Configuration file(s)
+
+1. Consist of an ordered sequence of statements
+   1. Order of statements matters
+      1. Ordering of sections does not matter, but 'global' section must precede other sections
+1. The file is divided into multiple sections, delimited by certain section keywords (e.g. global, defaults)
+1. Supports strong quoting and weak quoting
+   1. Strong quoting by surrounding single quotes => nothing inside is interpreted
+   1. Weak quoting by surrounding double quotes => some interpretation allowed (e.g. environment variables by using the $ sign)
+1. Environment variables are supported in a manner similar to Bourne shells
+
+##### Sections
+
+1. "globals" section
 1. "proxies" sections
    1. includes:
       1. defaults
-      1. listen
+         1. sets defaults for all other sections that follow
+         1. parameters are reset by next 'defaults' section
       1. frontend
+         1. describes a set of listening sockets accepting client connections
       1. backend
-   1. Important keywords
-      1. acl
-         1. acl <aclname> <criterion> [flags] [operator] <value> ...
-      1. balance
-      1. bind
-      1. compression
-      1. cookie
-      1. default_backend
-      1. maxconn
-      1. log
-      1. mode
-         1. mode { tcp|health|http }
-      1. rate-limit-sessions
-      1. redirect
-      1. server
-      1. stats
-         1. stats auth <user:passwd>
-      1. timeout client
-      1. timeout connect
-      1. timeout server
-      1. use_backend
+         1. describes a set of servers to which the proxy will connect to forward incoming connections
+      1. listen
+         1. defines a complete proxy with its frontend and backend parts combined in one section
 
 ## Useful commands when running HAProxy standalone outside of Docker
 
@@ -389,6 +378,20 @@ frontend fe_main
     http-request track-sc1 src table st_src_login if { path_beg /login }
     http-request track-sc1 src table st_src_api if { path_beg /api }
 ```
+
+Example format
+
+```shell
+http-request track-sc0 <key> [table <table>] [ { if | unless } <condition> ]
+```
+
+1. In format above:
+
+   1. <key> = mandatory sample expression
+   1. <table> = optional, defaults to stick-table declared in current proxy
+
+1. General purpose counters (gpc)
+1. General purpose tags (gpt)
 
 ### Memory considerations
 
@@ -615,6 +618,7 @@ backend blog-backend
 1. How can a single HAProxy server handle multiple SSL certificates?
 1. Can multiple HAProxy servers run on the same machine
 1. What is the appropriate way to use chroot within Docker?
+1. Filters
 
 ## Bot Protection
 
