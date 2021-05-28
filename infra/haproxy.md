@@ -8,16 +8,16 @@
 
 ## What it is
 
-1. High-Availability Proxy
 1. High-performance, TCP/HTTP load balancer and proxy server
 1. Can operate at layer 4 (TCP) or layer 7 (HTTP)
    1. In TCP mode, HAProxy simply forwards bidirectional traffic
    1. In HTTP mode, HAProxy analyzes the protocol and can interact with it in multiple ways
 1. HAProxy is designed to isolate itself into a chroot jail during startup
    1. => cannot perform any file-system access
-1.
 
-## Installation without using Docker
+## Installation
+
+### Without Docker
 
 1. Ubuntu 20
 
@@ -82,7 +82,7 @@ For newer versions, build from source:
     sudo touch /var/lib/haproxy/stats
     ```
 
-## Installation with Docker
+### With Docker (recommended)
 
 ```shell
 docker pull haproxy:2.3-alpine
@@ -90,8 +90,6 @@ docker pull haproxy:2.3-alpine
 
 ## Basic Concepts
 
-1. Access Control Lists
-   1. Test some condition => perform an action based on test result
 1. Load balancing types
    1. Layer 4 (Transport Layer) load balancing
       1. Forward based on IP range and port
@@ -101,8 +99,9 @@ docker pull haproxy:2.3-alpine
 1. Frontend
    1. How requests should be forwarded to backends
    1. Contains the following:
-      1. A set of IP addresses and a port
-      1. ACLs
+      1. Bind instruactions for a set of IP addresses and ports
+      1. Access Control Lists
+         1. Test some condition => perform an action based on test result
       1. 'use_backend' rules
          1. Define which backend to use depending on which ACL condition is matched
          1. Can also include a default backend rule to handle every other case
@@ -125,14 +124,14 @@ docker pull haproxy:2.3-alpine
 1. Health checks
    1. Determine if a backend server is available to process requests
 
-### Configuration - Essential Sections and Keywords
+## Configuration - Essential Sections and Keywords
 
 1. 3 major sources of parameters used in HAProxy configuration:
    1. command-line arguments, take highest precedence
    1. configuration files
    1. running process' environment
 
-#### Configuration file(s)
+### Configuration file(s)
 
 1. Consist of an ordered sequence of statements
    1. Order of statements matters
@@ -143,7 +142,7 @@ docker pull haproxy:2.3-alpine
    1. Weak quoting by surrounding double quotes => some interpretation allowed (e.g. environment variables by using the $ sign)
 1. Environment variables are supported in a manner similar to Bourne shells
 
-##### Sections
+#### Sections
 
 1. "globals" section
 1. "proxies" sections
@@ -158,33 +157,23 @@ docker pull haproxy:2.3-alpine
       1. listen
          1. defines a complete proxy with its frontend and backend parts combined in one section
 
-## Useful commands when running HAProxy standalone outside of Docker
-
-1. service haproxy reload
-   1. graceful reload when config changes
-1. service haproxy restart
-1. systemctl start/stop/status haproxy
-1. sudo service haproxy configtest
-1. Check configuration
-   1. haproxy -c -V -f /etc/haproxy/haproxy.cfg
-
 ## ACLs (Access Control Lists)
 
 1. Take actions based on content extracted from request, response or environment
-1. Typical actions:
-   1. block a request
-   1. select a backend
-   1. add a header
+   1. e.g. block a request, select a backend, add a header
 1. No limit to number of ACLs
 1. Format
-   1. acl <aclname> <criterion> [flags] [operator] [<value>] ...
-1. Data returned by sample fetch methods can be of following types:
-   1. boolean
-   1. integer
-   1. IPV4 or IPV6 addresses
-   1. string
-   1. data block
-   1. Returned data can be matched against following data types:
+   1. acl \<aclname> \<criterion> [flags] [operator] [\<value>] ...
+1. Criterion = sample fetch method
+   1. default test method is implied by specified sample fetch method
+   1. Data returned by sample fetch methods can be of following types:
+      1. boolean
+      1. integer
+      1. IPV4 or IPV6 addresses
+      1. string
+      1. data block
+   1. Converters can be used to transform between data types
+1. Returned data can be matched against following data types:
    1. boolean
    1. integer or integer range
    1. IP address/network
@@ -193,7 +182,9 @@ docker pull haproxy:2.3-alpine
    1. hex block
 1. Flags
    1. -i: ignore case
+   1. -f: load patterns from a file parsed as a single column file
    1. -m: use a specific pattern matching method
+   1. -M: load file pointed to by '-f' like a map file i.e. file is parsed as a two-column file
 
 ### Useful ACL Keywords
 
@@ -202,200 +193,6 @@ docker pull haproxy:2.3-alpine
 1. hrd(host) -i
 1. src
 1. src_port
-
-## Maps
-
-[Introduction](https://www.haproxy.com/blog/introduction-to-haproxy-maps/)
-
-[Reference]()
-
-1. A HAProxy map is a file that stores key-value pairs for use by HAProxy at runtime
-
-Example of map file below:
-
-```shell
-# A comment begins with a hash sign
-static.example.com  be_static
-www.example.com     be_static
-
-# You can add additional comments, but they must be on a new line
-example.com         be_static
-api.example.com     be_api
-```
-
-1. HAProxy uses map files as lookup tables
-1. Two major benefits:
-   1. Map files can be scanned very quickly for most use cases
-   1. Map files can be changed dynamically at runtime
-      1. Map files are loaded into memory when HAProxy starts and can be modified at runtime without a reload
-1. A map 'converter' is a directive in the HAProxy config file that takes an input and provides an output based on a map file
-
-   1. Example
-
-   ```shell
-   use_backend %[req.hdr(host),lower,map(/etc/hapee-1.8/maps/hosts.map,be_static)]
-   ```
-
-   1. Takes up to two arguments
-   1. First is path to map file
-   1. Second is an optional argument that defines a default if no matching key is found in map file
-
-1. Map files can by dynamically edit at runtime, without causing disturbance to the HAProxy service by:
-   1. Edit the file using the runtime API and also save changes to disk
-   1. Editing the map file directy from disk and conduct a 'graceful/hitless reload' of HAProxy
-   1. Use the 'http-request set-map' directive within the HAProxy config and update map entries based on URL parameters in the request
-      1. Useful for making edits from a remote client
-
-### Use Cases
-
-1. Blue-green deployment
-   1. Deploy a new release of app onto a set of staging servers and then swap them with production servers
-1. Rate limiting by URL path
-
-   Example map
-
-   ```shell
-   /api/routeA  40
-   /api/routeB  20
-   ```
-
-   Example front end
-
-   ```shell
-   frontend api_gateway
-    bind :80
-    default_backend api_servers
-
-    # Set up stick table to track request rates
-    stick-table type binary len 8 size 1m expire 10s store http_req_rate(10s)
-
-    # Track client by base32+src (Host header + URL path + src IP)
-    http-request track-sc0 base32+src
-
-    # Check map file to get rate limit for path
-    http-request set-var(req.rate_limit)  path,map_beg(/etc/hapee-1.8/maps/rates.map)
-
-    # Client's request rate is tracked
-    http-request set-var(req.request_rate)  base32+src,table_http_req_rate(api_gateway)
-
-    # Subtract the current request rate from the limit
-    # If less than zero, set rate_abuse to true
-    acl rate_abuse var(req.rate_limit),sub(req.request_rate) lt 0
-
-    # Deny if rate abuse
-    http-request deny deny_status 429 if rate_abuse
-   ```
-
-## Stick Tables
-
-[Introduction](https://www.haproxy.com/blog/introduction-to-haproxy-stick-tables/)
-[Reference]()
-
-1. Fast in-memory storage for use by HAProxy
-1. Primarily used to track user activity across requests, with use cases including:
-   1. Sticky sessions i.e. stick a client to a particular server
-   1. Collect metrics
-   1. Rate limiting
-   1. Bot protection
-   1. Track data transferred on a per-client basis
-   1. Make other decisions based on state
-1. Key-value store with:
-   1. Key = identifier tracked across requests (e.g. client IP)
-   1. Values = counters that, mostly, are auto-calculated/incremented by HAProxy
-1. Sample analyses using stick tables:
-   1. API requests per API key in last 24 hours
-   1. TLS distribution of clients
-   1. If website has an embedded search field, what are the top search terms people are using
-   1. Number of pages accessed by a client in a given time window
-   1. Amount of data transferred in/out by a client in a given time window
-
-### Use cases
-
-1. Sticky sessions
-   1. Associate a specific server with a client using some information about the client (e.g. IP address)
-   1. Extremely useful if application sessions are stored in-memory on a server
-1. Bot detection
-   1. Request floods
-   1. Brute force login attacks
-   1. Vulnerability scanners
-   1. Web scrapers
-   1. Slow loris attacks
-1. Metric collection
-   1. Use the Runtime API to read and analyze stick table data from the command line
-
-### Directive syntax
-
-1. 'stick-table' directives can be defined in a frontend or backend
-1. The directive defines how much storage a stick table should use, how long data should be kept, and what data is to be observed
-1. Each frontend and backend can have only one attached stick table
-1. Standard technique is to:
-   1. define frontends and backends whose sole purpose is to store stick table
-   1. then use that stick-table elsewhere using the 'table' parameter
-
-#### Stick-table definition
-
-Example format
-
-```shell
-   stick-table type <type> size <size> expire <expire-time> store <metric-to-store>
-   stick-table type ip size 1m expire 10s store http_req_rate(10s)
-```
-
-1. <type> = class of data that is captured
-   1. ip
-   1. ipv6
-   1. integer
-      1. often used to store a client ID based on a cookie or header
-   1. string
-      1. commonly used for session IDs, API keys
-   1. binary
-      1. commonly used for combinations (e.g. IP + URL)
-1. <size> = number of entries the table can store (e.g. 1 million)
-1. <expire> = informs HAProxy when to remove a record/data
-1. <store> = declares value to be saved
-1. <nopurge> = instruct HAProxy to not remove entries if table is full
-1. <peers> = mechanism to sync with other nodes
-
-#### Tracking Data
-
-1. Post definition of a stick table, data can be tracked by using sticky counters 'sc0' to 'sc2'
-1. The build time variable MAX_SESS_STKCTR is used to define the maximum number of sticky counters
-   1. => if more sticky counters needed, a special HAProxy build will have to be used
-
-```shell
-backend st_src_global
-    stick-table type ip size 1m expire 10m store http_req_rate(10m)
-
-backend st_src_login
-    stick-table type ip size 1m expire 10m store http_req_rate(10m)
-
-backend st_src_api
-    stick-table type ip size 1m expire 10m store http_req_rate(10m)
-
-frontend fe_main
-    bind *:80
-    http-request track-sc0 src table st_src_global
-    http-request track-sc1 src table st_src_login if { path_beg /login }
-    http-request track-sc1 src table st_src_api if { path_beg /api }
-```
-
-Example format
-
-```shell
-http-request track-sc0 <key> [table <table>] [ { if | unless } <condition> ]
-```
-
-1. In format above:
-
-   1. <key> = mandatory sample expression
-   1. <table> = optional, defaults to stick-table declared in current proxy
-
-1. General purpose counters (gpc)
-1. General purpose tags (gpt)
-
-### Memory considerations
-
-1. Each stick table entry takes ~50 bytes for housekeeping + size of key + size of counters = total
 
 ## Dynamic Configuration
 
@@ -620,41 +417,347 @@ backend blog-backend
 1. What is the appropriate way to use chroot within Docker?
 1. Filters
 
+## Useful commands when running HAProxy standalone outside of Docker
+
+1. service haproxy reload
+   1. graceful reload when config changes
+1. service haproxy restart
+1. systemctl start/stop/status haproxy
+1. sudo service haproxy configtest
+1. Check configuration
+   1. haproxy -c -V -f /etc/haproxy/haproxy.cfg
+
+## Rate Limiting
+
+[Reference](https://www.haproxy.com/blog/four-examples-of-haproxy-rate-limiting/)
+
+Some types of rate limiting are as below:
+
+1. Max connections
+
+   1. Add 'maxconn' parameter to servers as required with optional 'timeout queue'
+
+   Example:
+
+   ```shell
+
+   backend servers
+      timeout queue 10s
+      server s1 192.168.30.10:80 check  maxconn 30
+   ```
+
+1. Sliding window (e.g. 20 requests per client during the last 60 seconds)
+
+   1. Create a stick table to store http_req_rate data over required time window
+   1. Use http-request statement with http_req_rate parameter to track data in defined stick table
+   1. Deny requests if tracked rate of requests exceeds limit
+
+   Example:
+
+   ```shell
+   backend st_src_global
+
+      # Key is IP, 100k objects to be stored, expiry is 2 minutes and tracked data is http_req_rate over 1 minute
+      stick-table type ip size 100k expire 2m store http_req_rate(1m)
+
+   frontend st_user
+
+      # Track http requests in sticky counter 0 with key as src and table as st_src_global for all calls
+      http-request track-sc0 src table st_src_global # Rate limit with a sliding time window
+      http-request deny deny_status 429 if { sc_http_req_rate(0) gt 5 }
+   ```
+
+1. Fixed window
+
+   1. Create a stick table to store http_req_cnt data
+      1. http_request_cnt increments forever until reset (e.g. via Runtime API)
+   1. Use http-request statement with http_req_cnt parameter to track data in defined stick table
+   1. Deny requests if above limit
+   1. Reset data using the runtime API as and when desired
+
+1. Rate Limit by URL
+
+   1. Create a stick table to store http_req_rate data
+   1. Use a map file to store rate limits by URL: URL as key and rate limit for URL as value
+   1. Use http-request set-var statements to set a variable corresponding to the rate limit for the specific URL and another for the actual request rate for the combination of IP address and URL
+   1. Deny request if actual request rate variable higher than rate limit variable
+
+   Example:
+
+   ```shell
+   backend st_base32_src_req_rate
+      # Key is IP, 100k objects to be stored, expiry is 2 minutes and tracked data is http_req_rate over 1 minute
+      stick-table type binary len 20 size 100k expire 2m store http_req_rate(1m)
+
+   # Frontend for https requests
+   frontend https-front
+      # Track client by base32+src (Host header + URL path + src IP)
+      http-request track-sc0 base32+src table st_base32_src_req_rate
+
+      # Check map file to get rate limit for path
+      http-request set-var(req.rate_limit)  path,map_beg(/usr/local/etc/haproxy/rates.map,20)
+
+      # Client's request rate is tracked
+      http-request set-var(req.request_rate)  base32+src,table_http_req_rate(st_base32_src_req_rate)
+
+      # Subtract the current request rate from the limit
+      # If less than zero, set rate_abuse to true
+      acl rate_abuse var(req.rate_limit),sub(req.request_rate) lt 0
+
+      # Deny if rate abuse
+      http-request deny deny_status 429 if rate_abuse
+
+   ```
+
+1. Rate Limit by URL parameter
+
+   1. Create a stick table that stores http_request_rate data over specified time period with a string as key
+
+   Example:
+
+   ```shell
+   frontend website
+      bind :80
+      stick-table type string size 100k expire 24h store http_req_rate(24h)
+
+      # check for token parameter
+      acl has_token url_param(token) -m found
+
+      # check if exceeds limit
+      acl exceeds_limit url_param(token),table_http_req_rate() gt 1000
+
+      # start tracking based on token parameter
+      http-request track-sc0 url_param(token) unless exceeds_limit
+
+      # Deny if missing token or exceeds limit
+      http-request deny deny_status 429 if !has_token or exceeds_limit
+      default_backend servers
+   ```
+
+## Stick Tables
+
+[Introduction](https://www.haproxy.com/blog/introduction-to-haproxy-stick-tables/)
+[Reference]()
+
+1. Fast in-memory storage for use by HAProxy
+1. Primarily used to track user activity across requests, with use cases including:
+   1. Sticky sessions i.e. stick a client to a particular server
+   1. Collect metrics
+   1. Rate limiting
+   1. Bot protection
+   1. Track data transferred on a per-client basis
+   1. Make other decisions based on state
+1. Key-value store with:
+   1. Key = identifier tracked across requests (e.g. client IP)
+   1. Values = counters that, mostly, are auto-calculated/incremented by HAProxy
+1. Sample analyses using stick tables:
+   1. API requests per API key in last 24 hours
+   1. TLS distribution of clients
+   1. If website has an embedded search field, what are the top search terms people are using
+   1. Number of pages accessed by a client in a given time window
+   1. Amount of data transferred in/out by a client in a given time window
+
+### Use cases
+
+1. Sticky sessions
+   1. Associate a specific server with a client using some information about the client (e.g. IP address)
+   1. Extremely useful if application sessions are stored in-memory on a server
+1. Bot detection
+   1. Request floods
+   1. Brute force login attacks
+   1. Vulnerability scanners
+   1. Web scrapers
+   1. Slow loris attacks
+1. Metric collection
+   1. Use the Runtime API to read and analyze stick table data from the command line
+
+### Directive syntax
+
+1. 'stick-table' directives can be defined in a frontend or backend
+1. The directive defines how much storage a stick table should use, how long data should be kept, and what data is to be observed
+1. Each frontend and backend can have only one attached stick table
+1. Standard technique is to:
+   1. define frontends and backends whose sole purpose is to store stick table
+   1. then use that stick-table elsewhere using the 'table' parameter
+
+#### Stick-table definition
+
+Example format
+
+```shell
+   stick-table type <type> size <size> expire <expire-time> store <metric-to-store>
+   stick-table type ip size 1m expire 10s store http_req_rate(10s)
+```
+
+1. type = class of data that is captured
+   1. ip
+   1. ipv6
+   1. integer
+      1. often used to store a client ID based on a cookie or header
+   1. string
+      1. commonly used for session IDs, API keys
+   1. binary
+      1. commonly used for combinations (e.g. IP + URL)
+1. size = number of entries the table can store (e.g. 1 million)
+1. expire = informs HAProxy when to remove a record/data
+1. store = declares value to be saved
+1. nopurge = instruct HAProxy to not remove entries if table is full
+1. peers = mechanism to sync with other nodes
+
+#### Tracking Data
+
+1. Post definition of a stick table, data can be tracked by using sticky counters 'sc0' to 'sc2'
+1. The build time variable MAX_SESS_STKCTR is used to define the maximum number of sticky counters
+   1. => if more sticky counters needed, a special HAProxy build will have to be used
+
+```shell
+backend st_src_global
+    stick-table type ip size 1m expire 10m store http_req_rate(10m)
+
+backend st_src_login
+    stick-table type ip size 1m expire 10m store http_req_rate(10m)
+
+backend st_src_api
+    stick-table type ip size 1m expire 10m store http_req_rate(10m)
+
+frontend fe_main
+    bind *:80
+    http-request track-sc0 src table st_src_global
+    http-request track-sc1 src table st_src_login if { path_beg /login }
+    http-request track-sc1 src table st_src_api if { path_beg /api }
+```
+
+Example format
+
+```shell
+http-request track-sc0 <key> [table <table>] [ { if | unless } /<condition> ]
+```
+
+1. In format above:
+
+   1. key = mandatory sample expression
+   1. table = optional, defaults to stick-table declared in current proxy
+
+1. General purpose counters (gpc)
+1. General purpose tags (gpt)
+
+### Memory considerations
+
+1. Each stick table entry takes ~50 bytes for housekeeping + size of key + size of counters = total
+
 ## Bot Protection
 
 [Reference](https://www.haproxy.com/blog/bot-protection-with-haproxy/)
 
-1. Key Tools
-   1. ACLs
-   1. Maps
-   1. Stick tables
-1. Strategies
-   1. Anti-scraping
-      1. Behaviour pattern
-         1. Browse a lot of unique pages very quickly
-      1. Mitigation strategy
-         1. Observe the number of requests each client is making
-         1. Check how many of above requests are for pages client is visiting for the first time
-         1. If rate of requests above a threshold:
-            1. Flag user
-            1. Deny new requests/route to a new backend
-   1. Brute-force bots
-      1. Behaviour Pattern
-         1. Bots that attempt to brute-force a login page
-         1. Bots make POST requests and hit the same login URL repeatedly
-      1. Mitigation strategy
-         1. Track number of hits on relevant URL from each client
-         1. Block clients that cross some threshold rate of hits in a given time window
-   1. Vulnerability Scanners
-      1. Behaviour pattern
-         1. Generic scanners that probe site for many different paths looking for known vulnerable, third-party apps
-      1. Mitigation strategy
-         1. First line of defence is a Web Application Firewall (WAF)
-            1. [AWS example](https://aws.amazon.com/waf/)
-            1. Protect web apps and APIs against common web exploits and bots
-         1. In addtion, use stick tables and ACLs to detect and block vulnerability scanners
-            1. Typical behaviour of vulnerability scanners = attempt to access paths that do NOT exist, which results in 404 errors to the requests
-            1. Use 'http_err_rate' to measure the rate of errors per client
-            1. Block clients that are above a certain error rate threshold
-   1. Whitelisting good bots
-   1. Geolocation
+1. Anti-scraping
+   1. Bot behaviour pattern
+      1. Browse a lot of unique pages very quickly
+   1. Mitigation strategy
+      1. Observe the number of requests each client is making
+      1. Check how many of above requests are for pages client is visiting for the first time
+      1. If rate of requests above a threshold:
+         1. Flag user
+         1. Deny new requests/route to a new backend
+1. Brute-force bots
+   1. Bot behaviour Pattern
+      1. Bots that attempt to brute-force a login page
+      1. Bots make POST requests and hit the same login URL repeatedly
+   1. Mitigation strategy
+      1. Track number of hits on relevant URL from each client
+      1. Block clients that cross some threshold rate of hits in a given time window
+1. Vulnerability Scanners
+   1. Bot behaviour pattern
+      1. Generic scanners that probe site for many different paths looking for known vulnerable, third-party apps
+   1. Mitigation strategy
+      1. First line of defence is a Web Application Firewall (WAF)
+         1. [AWS example](https://aws.amazon.com/waf/)
+         1. Protect web apps and APIs against common web exploits and bots
+      1. In addtion, use stick tables and ACLs to detect and block vulnerability scanners
+         1. Typical behaviour of vulnerability scanners = attempt to access paths that do NOT exist, which results in 404 errors to the requests
+         1. Use 'http_err_rate' to measure the rate of errors per client
+         1. Block clients that are above a certain error rate threshold
+1. Whitelisting good bots
+1. Geolocation
+
+## Maps
+
+[Introduction](https://www.haproxy.com/blog/introduction-to-haproxy-maps/)
+
+[Reference]()
+
+1. A HAProxy map is a file that stores key-value pairs for use by HAProxy at runtime
+
+Example of map file below:
+
+```shell
+# A comment begins with a hash sign
+static.example.com  be_static
+www.example.com     be_static
+
+# You can add additional comments, but they must be on a new line
+example.com         be_static
+api.example.com     be_api
+```
+
+1. HAProxy uses map files as lookup tables
+1. Two major benefits:
+   1. Map files can be scanned very quickly for most use cases
+   1. Map files can be changed dynamically at runtime
+      1. Map files are loaded into memory when HAProxy starts and can be modified at runtime without a reload
+1. A map 'converter' is a directive in the HAProxy config file that takes an input and provides an output based on a map file
+
+   1. Example
+
+   ```shell
+   use_backend %[req.hdr(host),lower,map(/etc/hapee-1.8/maps/hosts.map,be_static)]
+   ```
+
+   1. Takes up to two arguments
+   1. First is path to map file
+   1. Second is an optional argument that defines a default if no matching key is found in map file
+
+1. Map files can by dynamically edit at runtime, without causing disturbance to the HAProxy service by:
+   1. Edit the file using the runtime API and also save changes to disk
+   1. Editing the map file directy from disk and conduct a 'graceful/hitless reload' of HAProxy
+   1. Use the 'http-request set-map' directive within the HAProxy config and update map entries based on URL parameters in the request
+      1. Useful for making edits from a remote client
+
+### Use Cases
+
+1. Blue-green deployment
+   1. Deploy a new release of app onto a set of staging servers and then swap them with production servers
+1. Rate limiting by URL path
+
+   Example map
+
+   ```shell
+   /api/routeA  40
+   /api/routeB  20
+   ```
+
+   Example front end
+
+   ```shell
+   frontend api_gateway
+    bind :80
+    default_backend api_servers
+
+    # Set up stick table to track request rates
+    stick-table type binary len 8 size 1m expire 10s store http_req_rate(10s)
+
+    # Track client by base32+src (Host header + URL path + src IP)
+    http-request track-sc0 base32+src
+
+    # Check map file to get rate limit for path
+    http-request set-var(req.rate_limit)  path,map_beg(/etc/hapee-1.8/maps/rates.map)
+
+    # Client's request rate is tracked
+    http-request set-var(req.request_rate)  base32+src,table_http_req_rate(api_gateway)
+
+    # Subtract the current request rate from the limit
+    # If less than zero, set rate_abuse to true
+    acl rate_abuse var(req.rate_limit),sub(req.request_rate) lt 0
+
+    # Deny if rate abuse
+    http-request deny deny_status 429 if rate_abuse
+   ```
