@@ -37,50 +37,50 @@ sudo yum install haproxy
 
 For newer versions, build from source:
 
-1.  [Reference 1](https://www.unixmen.com/installing-haproxy-for-load-balancing-on-centos-7/)
-1.  [UpCloud Reference](https://upcloud.com/community/tutorials/haproxy-load-balancer-centos/)
+1. [Reference 1](https://www.unixmen.com/installing-haproxy-for-load-balancing-on-centos-7/)
+1. [UpCloud Reference](https://upcloud.com/community/tutorials/haproxy-load-balancer-centos/)
 
-    1. Install required packages
+   1. Install required packages
 
-    ```shell
-    sudo yum install wget gcc pcre-static pcre-devel
-    sudo yum groupinstall "Development Tools"
-    sudo yum install openssl-devel
-    ```
+   ```shell
+   sudo yum install wget gcc pcre-static pcre-devel
+   sudo yum groupinstall "Development Tools"
+   sudo yum install openssl-devel
+   ```
 
-    1. Get the source code
+   1. Get the source code
 
-    ```shell
-     wget http://www.haproxy.org/download/2.2/src/haproxy-2.2.4.tar.gz -O ~/Packages/haproxy.tar.gz
-    ```
+   ```shell
+    wget http://www.haproxy.org/download/2.2/src/haproxy-2.2.4.tar.gz -O ~/Packages/haproxy.tar.gz
+   ```
 
-    1. Build HAProxy with specific options for SSL
+   1. Build HAProxy with specific options for SSL
 
-    ```shell
-    cd ~/Packages
-    tar xzvf ~/Packages/haproxy.tar.gz -C ~/Packages
-    cd haproxy-2.2.4/
-    make TARGET=generic ARCH=native CPU=x86_64 USE_PCRE=1 USE_PCRE_JIT=1 USE_OPENSSL=1 USE_ZLIB=1 -j8
-    sudo make install
-    ```
+   ```shell
+   cd ~/Packages
+   tar xzvf ~/Packages/haproxy.tar.gz -C ~/Packages
+   cd haproxy-2.2.4/
+   make TARGET=generic ARCH=native CPU=x86_64 USE_PCRE=1 USE_PCRE_JIT=1 USE_OPENSSL=1 USE_ZLIB=1 -j8
+   sudo make install
+   ```
 
-    1. Create a symbolic link to allow running as normal user
+   1. Create a symbolic link to allow running as normal user
 
-    ```shell
-    sudo ln -s /usr/local/sbin/haproxy /usr/sbin/haproxy
-    ```
+   ```shell
+   sudo ln -s /usr/local/sbin/haproxy /usr/sbin/haproxy
+   ```
 
-    1.  Copy relevant files to required locations
+   1. Copy relevant files to required locations
 
-    ```shell
-    sudo cp examples/haproxy.init /etc/init.d/haproxy
-    sudo chmod 755 /etc/init.d/haproxy
-    sudo systemctl daemon-reload
-    sudo mkdir -p /etc/haproxy
-    sudo mkdir -p /run/haproxy
-    sudo mkdir -p /var/lib/haproxy
-    sudo touch /var/lib/haproxy/stats
-    ```
+   ```shell
+   sudo cp examples/haproxy.init /etc/init.d/haproxy
+   sudo chmod 755 /etc/init.d/haproxy
+   sudo systemctl daemon-reload
+   sudo mkdir -p /etc/haproxy
+   sudo mkdir -p /run/haproxy
+   sudo mkdir -p /var/lib/haproxy
+   sudo touch /var/lib/haproxy/stats
+   ```
 
 ### With Docker (recommended)
 
@@ -267,7 +267,7 @@ echo "show stat" | socat stdio tcp4-connect:127.0.0.1:9999 | cut -d "," -f 1-2,5
 
 ## Sample config
 
-```
+```shell
 # Globals section
 global
         # max connections
@@ -537,7 +537,6 @@ Some types of rate limiting are as below:
 ## Stick Tables
 
 [Introduction](https://www.haproxy.com/blog/introduction-to-haproxy-stick-tables/)
-[Reference]()
 
 1. Fast in-memory storage for use by HAProxy
 1. Primarily used to track user activity across requests, with use cases including:
@@ -605,6 +604,11 @@ Example format
 1. peers = mechanism to sync with other nodes
 
 #### Tracking Data
+
+1. A sticky counter is a variable that temporarily holds the key value to look up in the stick table
+
+   1. [Reference](https://www.haproxy.com/documentation/hapee/latest/configuration/stick-tables/syntax/)
+   1.
 
 1. Post definition of a stick table, data can be tracked by using sticky counters 'sc0' to 'sc2'
 1. The build time variable MAX_SESS_STKCTR is used to define the maximum number of sticky counters
@@ -683,8 +687,6 @@ http-request track-sc0 <key> [table <table>] [ { if | unless } /<condition> ]
 
 [Introduction](https://www.haproxy.com/blog/introduction-to-haproxy-maps/)
 
-[Reference]()
-
 1. A HAProxy map is a file that stores key-value pairs for use by HAProxy at runtime
 
 Example of map file below:
@@ -718,7 +720,7 @@ api.example.com     be_api
 
 1. Map files can by dynamically edit at runtime, without causing disturbance to the HAProxy service by:
    1. Edit the file using the runtime API and also save changes to disk
-   1. Editing the map file directy from disk and conduct a 'graceful/hitless reload' of HAProxy
+   1. Editing the map file directly from disk and conduct a 'graceful/hitless reload' of HAProxy
    1. Use the 'http-request set-map' directive within the HAProxy config and update map entries based on URL parameters in the request
       1. Useful for making edits from a remote client
 

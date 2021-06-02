@@ -13,19 +13,24 @@
       "autoupdates",
       "bnext",
       "bprev",
+      "devel",
       "firewalld",
       "flexbox",
       "flexbugs",
       "genid",
+      "groupinstall",
       "haproxy",
       "letsencrypt",
+      "pcre",
       "proto",
       "roundrobin",
+      "sbin",
       "systemctl",
       "tailwindcss",
       "toport",
       "untrusted",
-      "vbernat"
+      "vbernat",
+      "xzvf"
     ],
     "editor.formatOnSave": true
   }
