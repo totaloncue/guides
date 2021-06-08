@@ -72,3 +72,66 @@
        ```shell
        sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -m ec2 -a status
        ```
+
+## Concepts
+
+1. Format of a Cloudwatch log
+   1. Every log contains 5 system-generated fields
+      1. @message = raw unparsed log event
+      1. @timestamp = event timestamp contained in the log event's timestamp field
+         1. What if this doesn't exist?
+      1. @ingestionTime = time when log event was received
+      1. @logStream = name of log stream
+      1. @log = log group id
+   1. Also includes auto-discovered log fields depending on the actual logs that are sent
+1. Log groups and streams
+   1. Log stream = single source
+   1. Log group = group of streams that share retention, monitoring and access control settings
+1. Insights
+   1. Interactively search and analyze log data
+   1. Query log data with a domain-specific query language
+   1. Automatically discovers fields in logs emitted as JSON
+      1. Up to a maximum of 1000 fields can be extracted from a JSON log
+      1. For extra fields, use the parse command to parse the field from the raw unparsed log event in the message field
+   1. A single request can query up to 20 log groups
+   1. Queries time out after 15 minutes
+   1. Query results are stored and available for 7 days
+   1. Save queries as and when created
+   1. Pricing based on amount of data queried at $0.0067 per GB
+1. Real-time processing with subscriptions
+   1. Use to get a real-time feed of log events from Cloudwatch Logs
+   1. A subscription filter defines the pattern to use to filter log events that are forwarded
+   1. Each log group can have up to two subscription filters
+   1. Cross-account log data sharing possible
+1. Metric filters
+   1. Search and filter log data
+   1. Define terms and patterns to search for and filter by
+   1. Cloudwatch Logs uses these filters to turn log data into numerical Cloudwatch metrics
+   1. Does not retroactively filter data i.e. only filters incoming messages after creation
+
+## Query Language
+
+1. Queries can include one or more query commands separated by the pipe (|) character
+1. Six query commands are supported:
+   1. display: specify which fields to display in the query results
+   1. fields: retrieves specified fields for display
+      1. can use functions and operations to modify field values as well as create new fields
+      1. e.g. fields concat(Operation, '-', StatusCode) as opStatus
+   1. filter: filter results based on conditions
+   1. stats: calculate aggregate statistics
+      1. can also use 'by' to specify criteria by which to group data
+      1. sum(), avg(), min(), max() and count() are supported
+   1. sort: sorts retrieved log events in asc or desc order
+   1. limit: specifies number of log events returned by query
+      1. default is 1000
+      1. max is 10,000
+   1. parse: extract data from a log field and create one or more ephemeral fields that can be used further in query
+      1. accepts glob expressions and regular expressions
+
+## Sample Queries
+
+### HAProxy logs
+
+### Apache Logs
+
+### Common Log Format
