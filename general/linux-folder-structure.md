@@ -6,6 +6,8 @@ The standard Ubuntu directory structure follows the Filesystem Hierarchy Standar
 
 ## Overview of Important directories
 
+Directory structure is based on scope and categories
+
 1. /bin
    1. Essential command binaries that need to be available in single-user mode e.g. cat, ls, cp
 1. /dev
@@ -29,7 +31,7 @@ The standard Ubuntu directory structure follows the Filesystem Hierarchy Standar
    1. run-time variable data
    1. information about the running system since last boot
 1. /sbin
-   1. essential system binaries
+   1. essential system binaries i.e. superuser binaries
 1. /tmp
    1. directory for temporary files
 1. /usr
@@ -68,3 +70,10 @@ The standard Ubuntu directory structure follows the Filesystem Hierarchy Standar
       1. run-time variable data
    1. /var/tmp
       1. temporary files to be preserverd between reboots
+1. /boot
+   1. kernel files
+1. /lost+found
+   1. damaged files rescued by a recovery tool
+1. /proc
+   1. currently running processes
+   1. have special properties: always appear to be zero-sized, read-only and dated now

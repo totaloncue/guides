@@ -120,3 +120,4 @@
 1. How do we auto restart containers?
    1. [Reference](https://docs.docker.com/config/containers/start-containers-automatically/)
    1. --restart no/on-failure/always/unless stopped
+1. How do we store Docker data on a different volume?
