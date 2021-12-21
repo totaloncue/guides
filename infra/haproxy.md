@@ -232,6 +232,14 @@ Example of command to watch stats
 echo "show stat" | socat stdio tcp4-connect:127.0.0.1:9999 | cut -d "," -f 1-2,5-10,34-36 | column -s, -t
 ```
 
+Example to get data on stick tables
+
+```shell
+echo "show table st-per-ip-data" | socat stdio tcp4-connect:127.0.0.1:9999
+echo "show table st-per-ip-and-url-data" | socat stdio tcp4-connect:127.0.0.1:9999
+echo "show table st-per-url-data" | socat stdio tcp4-connect:127.0.0.1:9999
+```
+
 ### Data Plane API
 
 1. Modern REST API to fully configure HAProxy

@@ -1,4 +1,4 @@
-# Fresh Setup of Ubuntu 20 ARM-64 Server
+# Fresh Setup of Ubuntu 20 ARM-64 App Server
 
 ## Basic Setup for All Machines
 
@@ -6,7 +6,7 @@
 
    ```shell
    sudo apt-get update -y
-   sudo apt-get upgrade -y
+   sudo apt-get upgrade --with-new-pkgs -y
    ```
 
 1. Install essential build tools
@@ -18,7 +18,7 @@
 1. Install AWS CLI
 
    ```shell
-   sudo apt -y install awscli
+   sudo apt-get -y install awscli
    ```
 
    1. Most required settings for the CLI will be pulled from the IAM role. To set region:
@@ -41,40 +41,6 @@
    sudo cp /etc/fstab /etc/fstab.bak
    echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
    sudo sysctl vm.swappiness=10
-   ```
-
-1. Install docker
-
-   1. [Docker reference](https://docs.docker.com/engine/install/ubuntu/)
-   1. [DigitalOceanGuid](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04)
-
-   ```shell
-   sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common gnupg-agent
-   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-   sudo add-apt-repository \
-      "deb [arch=arm64] https://download.docker.com/linux/ubuntu \
-      $(lsb_release -cs) \
-      stable"
-   sudo apt-get update
-   sudo apt-get install docker-ce docker-ce-cli containerd.io
-   sudo systemctl status docker
-   sudo usermod -aG docker ubuntu
-   ```
-
-1. Install docker compose (does NOT work on ARM64)
-
-   1. [Reference](https://docs.docker.com/compose/install/)
-   1. [DigitalOceanGuide](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-ubuntu-20-04)
-
-   ```shell
-   sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
-   sudo chmod +x /usr/local/bin/docker-compose
-   ```
-
-   For ARM64 architectures:
-
-   ```shell
-   sudo pip install docker-compose
    ```
 
 1. Install neovim and vimplug and fzf
@@ -169,91 +135,52 @@
       sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -m ec2 -a status
       ```
 
+## Additional Tools
+
+1. Install docker
+
+   1. [Docker reference](https://docs.docker.com/engine/install/ubuntu/)
+   1. [DigitalOceanGuid](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-20-04)
+
+   ```shell
+   sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common gnupg-agent
+   curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+   sudo add-apt-repository \
+      "deb [arch=arm64] https://download.docker.com/linux/ubuntu \
+      $(lsb_release -cs) \
+      stable"
+   sudo apt-get update
+   sudo apt-get install docker-ce docker-ce-cli containerd.io
+   sudo systemctl status docker
+   sudo usermod -aG docker ubuntu
+   ```
+
+1. Install docker compose (does NOT work on ARM64)
+
+   1. [Reference](https://docs.docker.com/compose/install/)
+   1. [DigitalOceanGuide](https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-compose-on-ubuntu-20-04)
+
+   ```shell
+   sudo curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+   sudo chmod +x /usr/local/bin/docker-compose
+   ```
+
+   For ARM64 architectures:
+
+   ```shell
+   sudo pip install docker-compose
+   ```
+
 1. Activate AWS SSM to allow remote triggers of commands on the instance
 
    ```shell
    sudo snap start amazon-ssm-agent
    ```
 
-## Production and Stage Servers
-
-## Development Machine
-
-1. Install nodejs
-
-   1. [DigitalOcean Reference](https://www.digitalocean.com/community/tutorials/how-to-install-node-js-on-ubuntu-20-04)
-
-   ```shell
-   curl -sL https://deb.nodesource.com/setup_14.x -o nodesource_setup.sh
-   <!-- curl -sL https://deb.nodesource.com/setup_12.x -o nodesource_setup.sh -->
-   sudo bash nodesource_setup.sh
-   sudo apt install -y nodejs
-   sudo apt-get install gcc g++ make
-   ```
-
-1. Install yarn
-
-   ```shell
-   curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-   echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-   sudo apt update && sudo apt install yarn
-   ```
-
-1. Install python
-
-   1. [DigitalOcean Reference](https://www.digitalocean.com/community/tutorials/how-to-install-python-3-and-set-up-a-programming-environment-on-an-ubuntu-20-04-server)
-
-   ```shell
-   sudo apt install -y python3-pip
-   sudo apt install -y build-essential libssl-dev libffi-dev python3-dev
-   ```
-
-1. Run HAProxy on Docker
-
-   1. [Guide to set up and run HAProxy using Docker](https://github.com/totaloncue/guides/blob/master/infra/haproxy-on-docker.md)
-
-1. Set up SSL Certs using LetsEncrypt
-
-   1. [Guide to setting up SSL certs with LetsEncrypt](https://github.com/totaloncue/guides/blob/master/aws/ec2/ssl-letsencrypt-guide.md)
-
-1. Github Actions Runner as a service
-
-1. Startup Script
-   1. restart docker with all running containers
-   1. restart github actions runner service
-
-## Adding volumes to machines
-
-Make a filesystem on an attached volume
-
-```shell
-sudo mkfs -t xfs /dev/nvme1n1
-```
-
-Create mount point
-
-```shell
-sudo mkdir /data
-```
-
-Mount volume
-
-```shell
-sudo mount /dev/nvme1n1 /data
-```
-
-Mount volumes on reboot by editing /etc/fstab file
-
-```shell
-UUID=aebf131c-6957-451e-8d34-ec978d9581ae  /data  xfs  defaults,nofail  0  2
-```
-
-## Additional tools
-
 1. Watch files and directories using inotify
 
-```shell
-sudo apt install inotify-tools
-```
+   ```shell
+   sudo apt install inotify-tools
+   ```
 
-## Database servers
+## App Server Machines

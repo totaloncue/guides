@@ -1,5 +1,11 @@
 # Postgres Overview
 
+## Desired Features
+
+1. Automatic failover + High availability
+1. Guaranteed zero data loss
+1. Read-only replicas
+
 ## What it is
 
 1. Open-source enterprise-class relational database system
@@ -10,62 +16,51 @@
 
 1. ACID
    1. Atomicity
+      1. ALL statements that are part of a transaction pass or fail together as a unit
    1. Consistency
+      1. Transactions can only move database from one valid state to another
    1. Isolation
+      1. Concurrent execution of transactions = sequential execution of transactions
    1. Durability
-1. Transactions
-   1. Set of actions fail or pass together
-1. Database server
-   1. A single server can manage many databases
-1. Users
-1. Databases
-   1. Casts
-   1. Catalogs
-   1. Schemas
-   1. Events
-   1. Triggers
+      1. Guarantees once a transaction has been committed, will endure through failure
+1. Service/server = instance of PostgreSQL daemon
+   1. Database: each service houses many individual databases
+      1. Schemas: next level of organization within a database
+         1. 'public' schema automatically created for each new database
+      1. Catalogs: system schemas that store PostgreSQL built-in functions and metadata
+         1. each database born with:
+            1. pg_catalog: functions, tables, views etc. packaged with PostgreSQL
+            1. information_schema: ANSI standard views that expose PostgreSQL metainformation
+   1. Variables
+      1. part of Grand Unified Configuration (GUC)
+      1. options that can be set at service, database and other levels
    1. Extensions
-   1. Foreign Data Wrappers
-   1. Languages
-1. Tables
-1. Triggers
-1. Views
-1. Functions
-1. Domains
-1. Sequences
+      1. package functions, data types, casts etc. for installation/removal as a unit
+   1. Tables
+      1. belong to schemas which belong to databases
+      1. can have parents and children through inheritance!
+      1. creating a table => auto-creating a custom accompanying data type that can then be used as a column in other tables!
+   1. Foreign table and foreign data wrappers
+      1. virtual tables linked to data outside a PostgreSQL database
+      1. Foreign data wrappers = configuration for foreign tables
+   1. Tablespace
+      1. Physical location where data is stored
+   1. Views
+   1. Functions
+      1. can return scalar value or set of records
+      1. can also be used to manipulat data (stored procedures)
+1. Users
 1. psql
    1. Interactive terminal included with Postgres
    1. psql <database-name>
       1. defaults to user account name
-1. pgAdmin
-   1. GUI tool to access and manipulate a database
-1. Superuser
-1. Superuser password
-1. Trust authentication
-1. Default user is 'postgres'
-1. Defaults
-   1. user
-   1. password
-   1. database
 1. initdb
 1. Data directory
 1. pg_ctl
    1. wrapper program to simplify some shell tasks
-
-## Data Structures
-
-## Popular Use Cases
-
-## Building Paths
-
-1. Transitioning from single master to cluster
-
-# Running with Docker
-
-1. Logging
-1. Persistence with volumes
-1. Networking
-1. Custom configuration
+1. Login roles (users) and group roles (groups)
+1. Template databases
+1. search_path: similar to PATH in linux
 
 ## Key Commands
 
@@ -75,7 +70,6 @@
    1. \h - sql command help
 1. createdb
 1. dropdb
-1.
 
 ## Authentication
 
@@ -177,28 +171,189 @@
 1. What is pg_dump?
 1. template0 vs template1
    1. New enconding and locale settings can be specified when copying template0, whereas copies of template1 use the same settings as template1
-1. sequences
-1. Locale
-1. constraints
-1. Indexes
-1. RLS Policies
-1. Rules
-1. Triggers
-1. Trigger Functions
-1. Types
-1. Views
-1. Collations
-1. Domains
-1. FTS Configurations
-1. FTS Dictionaries
-1. FTS Parsers
-1. FTS Templates
-1. Foreign Tables
-1. Functions
-1. Materialized Views
-1. Procedures
+
+## Running with Docker
+
+1. Logging
+1. Persistence with volumes
+1. Networking
+1. Custom configuration
+
+### Docker working guide
+
+1. How can I set up a custom postgresql.conf of pg_hba.conf file?
+   1. Mount custom config files to required locations in container (e.g. /etc/postgresql)
+      ile by mounting required file and changing startup command to include -c config_file=/path/to/mounted/file directive
+1. How can I edit configuration file?
+   1. Edit the mounted custom config file
+   1. Issue a pg_ctl restart or pg_ctl reload depending on whether change needs a restart/reload
+1. How can I edit an existing pg_hba.conf file?
+1. How can I restart/reload the service?
+
+   1. Log in to container as postgres user
+
+   ```shell
+   docker exec -it <container> su postgres
+   pg_ctl restart/reload
+   ```
 
 ### Docker Questions
 
 1. Working with volumes for data storage
-1.
+
+## F.A.Q.
+
+1. Where are the PostgreSQL .conf files?
+   1. [StackOverflow thread](https://stackoverflow.com/questions/3602450/where-are-my-postgres-conf-files)
+1. How to log all PostgreSQL queries?
+   1. [StackOverflow thread](https://stackoverflow.com/questions/722221/how-to-log-postgresql-queries)
+1. How can I time queries in psql?
+   1. [StackOverflow thread](https://dba.stackexchange.com/questions/3148/how-can-i-time-sql-queries-using-psql)
+1. Where does PostgreSQL store the database
+   1. [StackOverflow thread](https://stackoverflow.com/questions/1137060/where-does-postgresql-store-the-database)
+1. How does JSONB work in PostgreSQL?
+   1. [StackOverflow thread](https://stackoverflow.com/questions/22654170/explanation-of-jsonb-introduced-by-postgresql)
+1. How can you ensure zero data loss with PostgreSQL?
+
+## Comparison with RDS
+
+### RDS Features
+
+1. Automated backups
+   1. Point-in-time-recovery for any second within the last 5 minutes
+      1. Backs up database and transaction logs
+      1. Automatic backup retention up to 35 days
+
+## Sample data
+
+[Reference](https://wiki.postgresql.org/wiki/Sample_Databases)
+
+1. pgbench
+1. pagila
+
+## Backup and Recovery
+
+1. pg_dump and pg_dumpall produce logical backups of a single point in time
+1. pg_basebackup provides physical backup that can be combined with WAL archives to produce continuous point-in-time recovery
+   1. Can also use EBS snapshots instead of pg_basebackup?
+
+## Replication
+
+### Streaming Replication
+
+[Ubuntu guide](https://ubuntu.com/server/docs/databases-postgresql)
+
+### Logical Replication
+
+[Postgres Docs](https://www.postgresql.org/docs/13/logical-replication-quick-setup.html)
+[DigitalOcean Guide](https://www.digitalocean.com/community/tutorials/how-to-set-up-logical-replication-with-postgresql-10-on-ubuntu-18-04)
+
+1. Very simple to setup, uses pub-sub model
+1. As of v13, can only replicate regular tables
+   1. cannot replicate schema changes
+   1. cannot replicate views, materialized views, partition root tables, foreign tables
+1. Cascading logical replication can be set up
+1. Supports multi-master models
+
+#### Simple setup
+
+1. Ensure 'wal_level' on publisher node = logical
+1. Edit pg_hba.conf to allow replication e.g.
+
+   ```shell
+   host  all   repuser  0.0.0.0/0 md5
+   ```
+
+1. Grant privileges to replication user
+
+   ```sql
+   GRANT ALL PRIVILEGES ON DATABASE example TO repuser;
+   GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO repuser;
+   ```
+
+1. Create publication on publisher node
+1. Create subscription on subscriber node
+   1. Ensure syncrhonous commit is set correctly on subscriber node
+
+### Synchronous Replication
+
+## Reload vs Restart
+
+### Key Parameters that require a restart
+
+1. wal_level
+1. data_directory
+1. config_file (can only be set on the command line)
+1. hba_file
+1. ident_file
+
+## Ubuntu Working Guide
+
+Installation references:
+[Reference for latest version](https://www.postgresql.org/download/linux/ubuntu/)
+[DigitalOcean Guide](https://www.digitalocean.com/community/tutorials/how-to-install-postgresql-on-ubuntu-20-04-quickstart)
+[pgDash guide](https://pgdash.io/blog/postgres-13-getting-started.html)
+
+Default locations:
+
+1. Data directory: /var/lib/postgresql/13/main
+1. Config file: /etc/postgresql/13/main/postgresql.conf
+1. HBA file: /etc/postgresql/13/main/pg_hba.conf
+1. Log file: /var/log/postgresql/postgresql-13-main.log
+
+pg_ctl vs pg_ctlcluster vs service
+[Concise explanation](https://fatdragon.me/blog/2016/05/managing-postgresql-process-ubuntu-service-pgctl-and-pgctlcluster)
+[StackOverflow question](https://askubuntu.com/questions/642259/stopping-a-postgresql-instance)
+
+1. pg_ctlcluster is an Ubuntu-specific wrapper around pg_ctl i.e. it uses pg_ctl internally
+   1. Can operate at individual cluster level
+   1. service can only operate on all clusters together at one time
+
+Post-installation setup:
+
+1. Ensure 'listen_addresses' set appropriately in postgresql.conf
+   1. Use scram-sha-256 for new database clusters
+1. Check pg_hba.conf settings to allow all required connections
+   1. Use scram-sha-256 for password encryption for new database clusters
+1. Check firewall settings for instance
+1. Create a regular database user
+
+   ```shell
+   SET password_encryption = 'scram-sha-256';
+   CREATE ROLE regularuser LOGIN WITH PASSWORD 'password';
+
+   ```
+
+1. Create a regular database
+
+   ```shell
+   CREATE DATABASE app1 OWNER regularuser;
+   ```
+
+### Key commands
+
+1. Use systemctl to take action on ALL clusters together
+
+   ```shell
+   sudo systemctl restart postgresql
+   sudo systemctl reload postgresql
+   sudo systemctl stop postgresql
+   sudo systemctl start postgresql
+   sudo systemctl status postgresql
+   ```
+
+1. Use ubuntu specific commands to take action on individual clusters
+
+[Explanatory article](https://www.percona.com/blog/2019/06/24/managing-multiple-postgresql-instances-on-ubuntu-debian/)
+
+```shell
+pg_lsclusters
+pg_createcluster [options] version name [--initdb options]
+pg_ctlcluster
+pg_dropcluster [--stop] cluster-version cluster-name
+pg_wrapper
+```
+
+1. Remove a postgres installation completely
+
+[Reference](https://askubuntu.com/questions/32730/how-to-remove-postgres-from-my-installation)

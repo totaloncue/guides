@@ -139,3 +139,6 @@ sudo ./svc.sh uninstall
 1. Where do jobs run?
    1. When using Github hosted runners: each job runs in a fresh instance of a virtual environment specified by 'runs-on'
    1. When using self-hosted runners, runner is chosen based on labels provided
+1. What directories/files can be deleted to save disk space?
+   1. \_work?
+   1. \_diag?
