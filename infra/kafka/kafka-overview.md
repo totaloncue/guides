@@ -113,3 +113,9 @@
       1. Single partition ~= 10MB/s
 1. What is a broker?
 1. What is a consumer group and why is it useful?
+   1. When a topic is consumed by consumers in the same group, every record/message will be delivered to only one consumer
+   1. Can ensure parallel processing of records from a topic provide topic is split into partitions
+1. What is 'dumb pipeline, smart clients'?
+   1. Kafka brokers do NOT know about consumer offsets
+   1. Consumers are in charge of tracking which records have been consumed
+   1. Consumers store offset in a special topic called \_\_consumer_offsets after reading a record (committing the offset)
