@@ -101,7 +101,7 @@
 1. What is a connector?
    1. What is a transform?
    1. What is a predicate?
-   1. What is a task?
+   1. What is a task in the context of a connector?
 1. What is a schema registry?
 1. Why are partitions needed?
    1. Mechanism for scalability and parallelization
