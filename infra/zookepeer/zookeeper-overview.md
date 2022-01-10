@@ -117,6 +117,22 @@ docker run --name some-zookeeper --restart always -d -v $(pwd)/zoo.cfg:/conf/zoo
 
 ## API
 
+1. addWatch [-m mode] path # optional mode is one of [PERSISTENT, PERSISTENT_RECURSIVE] - default is PERSISTENT_RECURSIVE
+1. create [-s] [-e] [-c] [-t ttl] path [data] [acl]
+1. delete [-v version] path
+1. deleteall path [-b batch size]
+1. delquota [-n|-b|-N|-B] path
+1. get [-s] [-w] path
+1. getAcl [-s] path
+1. getAllChildrenNumber path
+1. getEphemerals path
+1. ls [-s] [-w] [-R] path
+1. set [-s] [-v version] path data
+1. setAcl [-s] [-v version] [-R] path acl
+1. setquota -n|-b|-N|-B val path
+1. stat [-w] path
+1. sync path
+
 ## Libraries
 
 1. [Python](https://kazoo.readthedocs.io/en/latest/)
