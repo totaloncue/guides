@@ -76,7 +76,7 @@ Connect to zookeeper from cli
 docker run -it --rm --link some-zookeeper:zookeeper zookeeper zkCli.sh -server zookeeper
 ```
 
-Connect to zookeeper from an application in another Docker container
+Connect to zookeeper from an application in another Docker container using --link
 
 ```shell
 docker run --name some-app --link some-zookeeper:zookeeper -d application-that-uses-zookeeper
@@ -136,8 +136,8 @@ docker run --name some-zookeeper --restart always -d -v $(pwd)/zoo.cfg:/conf/zoo
 ## Libraries
 
 1. [Python](https://kazoo.readthedocs.io/en/latest/)
-1. NodeJS:
-1. GoLang:
+1. [NodeJS](https://www.npmjs.com/package/node-zookeeper-client)
+1. [GoLang](https://github.com/samuel/go-zookeeper)
 
 ## Log4J CVE
 
@@ -160,3 +160,28 @@ docker run --name some-zookeeper --restart always -d -v $(pwd)/zoo.cfg:/conf/zoo
 ## F.A.Q.
 
 1. How much do I need to know about Zookeeper to use Kafka?
+
+## Supported Recipes
+
+### Out-of-the-box
+
+1. Name service
+1. Configuration
+1. Group membership
+
+### Via Libraries/Client Code
+
+1. Barriers
+   1. Block processing of a set of nodes until a condition is met
+   1. Once condition met, all nodes allowed to proceed
+   1. Implement by watching for the existence of a barrier znode
+1. Double barriers
+   1. Enable synchronization of beginning and end of computation
+   1. When enough processes have joined the barrier, processes start computation and leave the barrier once finished
+1. Distributed queue
+1. Priority queue
+1. Distributed lock
+1. Shared lock
+1. Recoverable shared lock
+1. Two-phased commit
+1. Leader election
