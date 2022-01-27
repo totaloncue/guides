@@ -1,5 +1,7 @@
 # Etcd Overview
 
+## What it is
+
 1. Data backbone for distributed systems
 1. Implements the RAFT algorithm
 1. etcd3 first released Jul 2016
@@ -26,7 +28,25 @@
 1. Simple
    1. can read or write data to etcd using standard HTTP/JSON tools
 
-### Data Model
+## Features
+
+1. Concurrency primitives
+   1. Lock RPCs
+   1. Election RPCs
+   1. command line locks
+   1. command line elections
+   1. recipes
+1. Linearizable reads
+1. Multi-version concurrency control
+1. Transactions
+   1. Field compares
+   1. Read
+   1. Write
+1. Change notification
+   1. Historical and current key intervals
+1. User permissions
+
+## Data Model
 
 1. Multi-version persistent key-value store
    1. Preservers the previous value of a key when value superseded with new data
@@ -50,23 +70,54 @@
       1. any generation ended before compaction will be removed
       1. values set before the compaction revision except the latest one will be removed
 
-## Features
+## Authentication model and role-based access control
 
-1. Concurrency primitives
-   1. Lock RPCs
-   1. Election RPCs
-   1. command line locks
-   1. command line elections
-   1. recipes
-1. Linearizable reads
-1. Multi-version concurrency control
-1. Transactions
-   1. Field compares
-   1. Read
-   1. Write
-1. Change notification
-   1. Historical and current key intervals
-1. User permissions
+1. Authentication (if enabled) => all operations require login with a username and password
+   1. Can be enabled only after creation of a root role and root user
+1. One special user = root
+   1. Has full access to etcd
+   1. Must be created before activating auth
+   1. Must have the root role and is allowed to change anything inside etcd
+1. One special role = root
+   1. Must be granted to root user
+   1. May be granted to any other user also
+   1. Global read-write access + permission to update cluster config
+   1. Also has privileges for cluster maintenance (e.g. modify cluster membership, defragment store, take snapshots etc.)
+1. Roles
+   1. Method of implementing access control
+   1. Mechanism to grant access rights
+   1. Do not have associated passwords
+   1. Roles can be granted access to either a single key or to a range of keys
+      1. Access can be read, write or read-write
+      1. Access may also be revoked both to a single key as well as a range of keys
+   1. Roles can also be deleted
+   1. Roles can be granted onto users
+1. Users
+   1. Can be created and deleted
+   1. Can be granted a role as well as have role revoked
+   1. Can have passwords
+
+## Transport security model
+
+1. Supports:
+   1. automatic TLS
+      1. do NOT use this -- better to be explicit with the use of certificates
+      1. client-to-server
+         1. enable --auto-tls config flag to use automatically generated and self-signed certificates for TLS connections with clients
+      1. server-to-server
+         1. enable --peer-auto-tls config flag to use automatically generated self-signed certificates for TLS connections between peers
+   1. auth based on client certificates for client-to-server as well as server-to-server (peer) communication
+      1. Clients must present a certificate to be trusted by server
+      1. Servers must present a certificate to clients to be trusted by clients
+      1. Servers must present a certificate to other servers (peers) to be trusted by peers
+
+### TLS setup
+
+## Monitoring, logging and observability
+
+## Backup and recovery
+
+## Runtime re-configuration
 
 ## API v3 versus v2
 
@@ -116,6 +167,24 @@ docker run \
 ```
 
 ### Configuration
+
+1. Can be achieved through use of command-line flags, environment variables and configuration files
+   1. Configuration files are highest priority. Presence => command-line flags and environment variables are ignored
+      1. Format for config file is YAML with keys set as command-line flags
+   1. Command-line flags preferred over environment variables
+      1. each flag corresponds to an environment variable with same name, prefixed with ETCD\_ and in snake case
+
+#### Member
+
+#### Clustering
+
+#### Security
+
+#### Auth
+
+#### Profiling and monitoring
+
+#### Logging
 
 #### Tuning
 
