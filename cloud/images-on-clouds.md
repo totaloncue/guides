@@ -29,6 +29,9 @@ https://cloud.google.com/compute/docs/import/import-existing-image
    1. What are udpates in dnf list --installed
    1. What is diff between available, installed, extras, updates, upgrades, autoremove and recent?
    1. What is the versioning guideline?
+      1. Version number
+      1. Release number
+      1. Architecture
 1. How do I list all the repos on system?
 
    1. Fedora
