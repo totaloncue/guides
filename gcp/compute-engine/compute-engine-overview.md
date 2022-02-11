@@ -6,6 +6,25 @@
    1. 1-96 vCPUs (any even number within)
    1. Up to 8GB RAM per vCPU
 
+## OS Login
+
+## Defaults
+
+1. Local users with passwords aren't configured on Linux VMs
+1. Uses custom project and/or instance metadata to configure SSH keys and to manage SSH access
+1. SSH keys stored in project metadata can access all VMs in project with these keys
+1. SSH keys stored in instance metadata can access individual VMs
+1. Manage access through metadata or OS Login
+1. Can login names be customized?
+1. What are labels?
+1. What is instance metadata and how do I set it?
+1. Fedora
+   1. username=<email_id>
+1. Debian
+   1. username=<email_id>
+1. Ubuntu
+   1. username=<email_id>
+
 ## Instance Types by use-case
 
 [Google Recommendation](https://www.gstatic.com/bricks/image/d25deab79c4a1f929fe61f943405e92e20c4a14ee16c91765c57e198bff289ab.svg)
@@ -38,17 +57,20 @@
 1. Uses public-key cryptography
    1. Any person can encrypt a message using the intended receiver's public key
    1. Only the owner of the private key can then decrypt the message
-1. Symmetric vs asymmetric crypto
-   1. Symmetric => use same cryptographic key for both encryption and decryption
-      1. => shared secret between two parties
-   1. Common pattern is to use asymmetric encryption to exchange the secret for symmetric key encryption and then subsequently use symmetric keys
 1. Authentication is based on the private key but the key itself is never transferred through the network during authentication
    1. SSH verifies that the same person offering the public key also owns the matching private key
 1. Authorized keys
 1. Known hosts
 
-## Connect with ssh
+## Connect to instances
 
+### OS Login
+
+### Connect with ssh
+
+1. By default no persistent SSH keys generated for instances
+   1. Connection based on temporary keys that are transferred to VM on each connection from console
+1. [GCP docs](https://cloud.google.com/compute/docs/connect/create-ssh-keys)
 1. Generate an ssh key pair (public key + private key)
 
 ```shell
@@ -60,3 +82,8 @@ e.g.
 ```shell
 ssh-keygen -t rsa -f ~/.ssh/test_key -C ubuntu -b 2048
 ```
+
+1. Add public SSH key to instance metadata
+1. Connect to instance
+   1. For Fedora, use username 'core'
+   1. For Debian and Ubuntu, use username provided with SSH file

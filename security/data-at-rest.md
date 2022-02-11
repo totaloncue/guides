@@ -74,6 +74,25 @@
    1. Linux kernel-level encryption mechanism that allows users to mount an encrypted file system
    1. Provides transparent encryption of block devices
 1. What is cryptsetup?
+
+```shell
+# Create a LUKS Format device
+# This asks for a passphrase
+cryptsetup luksFormat /dev/sdc3
+# Open device for use under a given name
+cryptsetup luksOpen /dev/sdc3 <name-of-device-when-mapped>
+# Create a filesystem on the opened device
+mkfs.xfs /dev/mapper/<name-of-device-when-mapped>
+# Mount the device
+mount /dev/mapper/<name-of-device-when-mapped> /mnt
+# Close the device
+cryptsetup luksClose <name-of-device-when-mapped>
+# Ensure automatically set up on reboot by editing /etc/fstab (not enough)
+/dev/mapper/<name-of-device-when-mapped> /<mount-point> <filesystem> defaults 0 0
+# Edit /etc/crypttab
+<name-of-device-when-mapped> <name-of-partition-used-by-device>
+```
+
 1. What is parted?
 1. What is lsblk?
 1. Logical volumes
@@ -96,3 +115,15 @@
 ### Azure
 
 ### GCP
+
+### Aiven
+
+1. Aiven at-rest data encryption covers both active service instances as well as service backups in cloud object storage.
+1. Service instances and the underlying VMs use full volume encryption using LUKS with a randomly generated ephemeral key per each instance and each volume.
+   1. The key is never re-used and will be trashed at the destruction of the instance, so there’s a natural key rotation with roll-forward upgrades.
+   1. We use the LUKS default mode aes-xts-plain64:sha256 with a 512-bit key.
+1. Backups are encrypted with a randomly generated key per file.
+   1. These keys are in turn encrypted with RSA key-encryption key-pair and stored in the header section of each backup segment.
+   1. The file encryption is performed with AES-256 in CTR mode with HMAC-SHA256 for integrity protection.
+   1. The RSA key-pair is randomly generated for each service. The key lengths are 256-bit for block encryption, 512-bit for the integrity protection and 3072-bits for the RSA key.
+   1. Aiven-encrypted backup files are stored in the object storage in the same region where the service virtual machines are located. For those cloud providers that do not provide object storage services (i.e. DigitalOcean, UpCloud), the nearest region from another cloud provider that provides an object storage is used.
