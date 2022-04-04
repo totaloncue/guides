@@ -18,3 +18,8 @@
 1. OCSP (online certificate status protocol)
 1. certificate transparency
 1. CRL (certificate revocation list)
+
+## Setup
+
+1. Install and set up Go 1.12+
+1. 
