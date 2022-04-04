@@ -1,5 +1,41 @@
 # Cryptography Concepts
 
+## Key ideas
+
+1. Encryption => Use someone's public key to write a message that can ONLY be decrypted by someone who has the private key
+1. Signing =>
+   1. Alice wants to send a message M-sent to Bob such that:
+      1. Only Bob can read it
+      1. Bob can be sure the message is from Alice AND has not been modified by anyone in transit
+   1. For first part, encrypt the message with Bob's public key and generate M-sent-encrypted
+      1. Bob's public key ideally should be obtained via a digital certificate that guarantees that the public key is valid and belongs to Bob
+   1. For the second part:
+      1. Pass the original message through a hash function H1 to get a **message digest** M-sent-hashed
+      1. Encrypt the mesage digest M2 with Alice's private key to  generate M-sent-hashed-and-encrypted
+   1. When Bob recieves a message:
+      1. He gets M-received-encrypted (this is the message that is encrypted using his public key)
+      1. He gets M-received-hashed-and-encrypted (this is the message hashed with H1 and then encrypted with Alice's private key)
+      1. He uses his own private key to decrypt the message M-received-encrypted to get M-received
+      1. Now he needs to check that the contents of M-received are the same as M-sent and gain trust that it was sent by Alice
+      1. He uses Alice's public key to decrypt M-received-hashed-and-encrypted to generate M-received-hashed
+   
+1. Certificate =>
+   1. Uses master trust in a higher-level third party (certificate authorities) to enable trust in some information about you
+   1. e.g. public keys are distributed using certificates
+      1. The signature of the CA guarantees that the public key information shared in the certificate is valid and belongs to the party mentioned in the certificate
+
+## References
+
+1. [StackOverflow on difference between signing and encryption](https://stackoverflow.com/questions/454048/what-is-the-difference-between-encrypting-and-signing-in-asymmetric-encryption)
+1. [StackOverflow on process of message transmission from Alice->Bob](https://stackoverflow.com/questions/2882506/what-is-the-difference-between-digital-signature-and-digital-certificate)
+1. [Another StackOverflow reference](https://stackoverflow.com/questions/18257185/how-does-a-public-key-verify-a-signature/18259395#18259395)
+1. [Why hash data before signing?](https://crypto.stackexchange.com/questions/12768/why-hash-the-message-before-signing-it-with-rsa)
+   1. Efficiency
+   1. Compatibility
+   1. Integrity
+
+## Terms
+
 1. Symmetric cryptography
 1. Session key - encryption key used to symmetrically encrypt one communication session only
    1. What is a session?
