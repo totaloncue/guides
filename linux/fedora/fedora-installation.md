@@ -4,6 +4,34 @@
 
 1. [Official Documentation](https://docs.fedoraproject.org/en-US/fedora/f35/install-guide/install/Installing_Using_Anaconda/)
 
+## Automated installs with Kickstart
+
+1. Kickstart files contain all the steps necessary to fully install Fedora
+1. Recommended approach is to use Anaconda on one system and have Anaconda generate anaconda-ks.cfg as part of this process; then use the Kickstart file for all other sytems
+1. Verify kickstart file
+
+```shell
+dnf install pykickstart
+ksvalidator /path/to/kickstart.ks
+```
+
+1. pre-install scripts in the %pre section
+	1. network available
+	1. name services not available
+	1. => only IP addresses work, NOT URLs
+	1. not run in a chroot environment
+
+1. post-install scripts in the %post section
+	1. once install is complete but before system is booted for first time
+	1. run in a chroot environment
+
+1. packages section
+	1. specify packages by environment, group or package name
+	1. @^ = environment (e.g. cloud-server-environment)
+	1. @ = group 
+	1. Individual packages mentioned one per line
+	1. -(leading dash) specifies items to exclude
+
 ## Partitioning
 
 1. Linux LVM (Logical Volume Manager) vs BTRFS (better FS/b-tree FS)
