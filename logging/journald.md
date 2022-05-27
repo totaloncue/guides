@@ -3,12 +3,13 @@
 ## What it is
 
 1. System service for collecting and storing log data, introduced with systemd
+1. Centralized management of logs
 1. Tries to replace plain text logs (as in syslog) with a structured format optimized for log messages
-1. However, no mechanism to ship logs to central location
+1. However, no mechanism to ship logs to central location off-machine
 1. use journalctl to access and query entries
    1. filter by date, emitting program, PID, UID, service or other elements
 1. Allows for logs with multiple fields and multi-line text
-1. Stores messages in a space-efficient manner that requires no log rotation
+1. Stores messages in binary format with a space-efficient manner that requires no log rotation
 1. Gives fast access to messages with querying/filtering capabilities, like a database
 1. Relies on existing syslog implementations to route messages to the central host
 
@@ -26,19 +27,29 @@
 [DigitalOcean reference](https://www.digitalocean.com/community/tutorials/how-to-use-journalctl-to-view-and-manipulate-systemd-logs)
 
 ```shell
+# Show all available journal fields
+man systemd.journal-fields
+
+# Show available values for a given journal field
+journalctl -F <journal-field>
+journalctl -F _GID
+
 # Display logs
 journalctl
 
 # Display logs in UTC
 journalctl --utc
 
-# Display logs from current boot
-journalctl -b
-
 # List previous boots
 journalctl --list-boots
 
+# Display logs from current boot
+journalctl -b
+
 # Display logs for a specific boot
+# Current boot
+journalctl -b 0
+# Previous boot
 journalctl -b -1
 journalctl -b <boot_id>
 
@@ -55,7 +66,7 @@ journalctl -u nginx.service --since today
 # By process, user or Group ID
 journalctl _PID=8088
 journalctl _UID=1000 --since today
-journalctl -F _GID
+journalctl _GID=1000
 
 # Logs by executable path
 journalctl /usr/bin/bash
@@ -91,9 +102,6 @@ sudo journalctl --vacuum-size=1G
 
 # Shrink journal to specific time
 sudo journalctl --vacuum-time=1years
-
-# Show available fields for filtering
-man systemd.journal-fields
 
 ```
 
