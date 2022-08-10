@@ -54,7 +54,6 @@
     1. combines filesystem with a volume manager
 
 ## Terms
-
     1. journaling filesystem
         1. keeps track of changes not yet committed to the main part of the filesystem by recording goal of such changes in a 'journal' (ususally a circular log)
     1. copy-on-write
