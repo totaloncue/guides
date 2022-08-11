@@ -61,6 +61,41 @@
 1. Login roles (users) and group roles (groups)
 1. Template databases
 1. search_path: similar to PATH in linux
+1. Procedures
+1. Checkpoints
+1. Cursor
+1. Two-phase commit
+1. Domain
+1. Event trigger
+   1. Take action on specific database events
+   1. Can act BEFORE, AFTER or INSTEAD of database event
+   1. Row-level vs statement-level triggers
+   1. Can be associated with a table, view or foreign table
+1. Foreign table
+1. Foreign data wrapper
+1. Function
+1. Group
+1. Index
+1. Materialized view
+1. operator
+1. Policy
+1. Publication
+1. Rule
+1. Schema
+1. Sequence
+1. Foreign server
+1. Subscription
+1. Tablespace
+1. Transform
+1. Lock
+1. Vacuum
+
+## Patterns
+
+1. Triggers 
+1. Listen/notify
+1. Caching with materialized views
+
 
 ## Key Commands
 
@@ -357,3 +392,19 @@ pg_wrapper
 1. Remove a postgres installation completely
 
 [Reference](https://askubuntu.com/questions/32730/how-to-remove-postgres-from-my-installation)
+
+### Basic SQL reference
+
+1. List all databases in a cluster
+1. List tables in a database
+1. Show schema of a table
+1. Create a role
+1. Create a database
+1. Create a schema
+1. Create a table
+1. Insert records into a table
+1. Retrieve records from a table
+1. Query a table
+
+
+
