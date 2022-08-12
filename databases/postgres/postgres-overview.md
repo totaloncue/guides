@@ -405,6 +405,25 @@ pg_wrapper
 1. Insert records into a table
 1. Retrieve records from a table
 1. Query a table
+1. List all listeners
+```sql
+select * from pg_listening_channels();
+```
+1. List all connected clients
 
 
+### Clients
 
+1. Python
+   1. psycopg2
+1. JS
+   1. node-postgres
+   1. pg-promise
+1. Go
+   1. pg
+   1. pgx
+   1. go-pg
+1. C
+   1. libpq
+
+### Connection management and pooling

@@ -3,6 +3,9 @@
 1. Privileges
 1. Row security policies
 1. Table paritioning
+1. Prepared statements
+
+1. Connection pooling
 
 1. Routines
    1. Collectively refers to functions and procedures
