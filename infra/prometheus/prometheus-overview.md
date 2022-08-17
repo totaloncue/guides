@@ -1,5 +1,19 @@
 # Prometheus Overview
 
+## What it is
+
+1. Open-source systems monitoring and alerting toolkit
+
+## Components
+
+1. Prometheus server
+1. Client libraries for application code
+1. Push gateway
+1. Exporters for services like HAProxy etc.
+   1. Node_exporter
+   1. Blackbox_exporter
+1. Alertmanager
+
 ## Key Features
 
 1. Multi-dimensional data model with time series data identified by metric name and key/value pairs
@@ -36,11 +50,11 @@ docker run -it -d \
 1. NOT recommended to run as a Docker container as it requires access to the host
    1. Instead, install and run it as a systemd service?
 
-## Key Components
+## Terms
 
-1. Prometheus
-1. AlertManager
-1. PushGateway
-1. Exporters
-   1. Node_exporter
-   1. Blackbox_exporter
+1. Blackbox probing vs. whitebox monitoring
+
+## Gotchas
+
+1. Not good for 100% accuracy (e.g. for per-second billing)
+1. 
