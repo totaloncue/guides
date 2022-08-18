@@ -44,6 +44,9 @@ docker run -it -d \
    1. rule files to load
    1. can be reloaded at runtime with a SIGHUP to the Prometheus process
 
+## Service discovery
+
+
 ## Node Exporter Overview
 
 1. Designed to monitor the host system
