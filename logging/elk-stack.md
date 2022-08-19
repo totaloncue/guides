@@ -47,3 +47,13 @@ docker system prune
       1. Each document has a unique ID
 
 1. Index patterns
+
+## Qucikstart
+
+1. Start Elasticsearch
+   1. Generate kibana token
+   ```shell
+   usr/share/elasticsearch/bin/elasticsearch-create-enrollment-token -s kibana
+   ```
+1. Start Kibana
+   1. 
