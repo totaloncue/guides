@@ -48,7 +48,7 @@ docker system prune
 
 1. Index patterns
 
-## Qucikstart
+## Quickstart
 
 1. Start Elasticsearch
    1. Generate kibana token
@@ -57,3 +57,18 @@ docker system prune
    ```
 1. Start Kibana
    1. 
+
+## Configuration
+
+1. Elasticsearch
+   1. Set network.host 0.0.0.0
+   1. server.publicBaseUrl?
+1. Kibana
+   1. Set server.host 0.0.0.0
+   1. Create an enrolment token on ES server and use that to enroll
+   1. Log in
+1. Filebeat
+   1. Connect to ES
+      1. Use the ca_cert created at time of Kibana enrolment
+   1. Connect to Kibana
+   1. Go to /etc/filebeat/modules.d/elasticsearch.yml and enable as required
