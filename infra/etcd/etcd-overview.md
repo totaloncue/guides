@@ -11,40 +11,23 @@
 1. [Core documentation](https://etcd.io/docs/v3.5/)
 1. [IBM Cloud documentation](https://www.ibm.com/cloud/learn/etcd)
 1. [Playground](http://play.etcd.io/home)
+1. [Core API with etcdctl](https://etcd.io/docs/v3.5/dev-guide/interacting_v3/)
+
+## Use cases
+
+1. Store infrequently updated data AND provide reliable watch queries => centralized configuration 
+1. Health check/monitoring?
+1. Service registry
 
 ## Overview
 
 1. Uses a multi-version concurrency control (MVCC) data model in version 3
-1. Fully replicated
-   1. Every node in an etcd cluster has access the full data store
-1. Highly available
-   1. designed to have no single point of failure and gracefully tolerate hardware failures and network partitions
-1. Reliably consistent
-   1. Every data ‘read’ returns the latest data ‘write’ across all clusters
-1. Fast
-   1. benchmarked at 10,000 writes per second
-1. Secure
-   1. supports automatic Transport Layer Security (TLS) and optional secure socket layer (SSL) client certificate authentication
-1. Simple
-   1. can read or write data to etcd using standard HTTP/JSON tools
-
-## Features
-
-1. Concurrency primitives
-   1. Lock RPCs
-   1. Election RPCs
-   1. command line locks
-   1. command line elections
-   1. recipes
-1. Linearizable reads
-1. Multi-version concurrency control
-1. Transactions
-   1. Field compares
-   1. Read
-   1. Write
-1. Change notification
-   1. Historical and current key intervals
-1. User permissions
+1. Fully replicated => every node in an etcd cluster has access the full data store
+1. Highly available => designed to have no single point of failure and gracefully tolerate hardware failures and network partitions
+1. Reliably consistent => every data ‘read’ returns the latest data ‘write’ across all clusters
+1. Fast => benchmarked at 10,000 writes per second
+1. Secure => supports automatic Transport Layer Security (TLS) and optional secure socket layer (SSL) client certificate authentication
+1. Simple => can read or write data to etcd using standard HTTP/JSON tools
 
 ## Data Model
 
@@ -247,11 +230,6 @@ docker run \
 1. [NodeJS etcd3](https://www.npmjs.com/package/etcd3)
 1. [NodeJS etcd2](https://www.npmjs.com/package/node-etcd)
 
-## Use Cases
-
-1. Service discovery
-1. Health checks and heartbeat
-
 ## Recommendations
 
 ### Development
@@ -269,3 +247,35 @@ docker run \
    1. Bash script with curl is OK but uses the gRPC gateway as an interface between gRPC and REST
       1. How does watching work with gRPC gateway?
          1. Seems to create a HTTP long connection
+
+## Features
+
+1. Concurrency primitives
+   1. Lock RPCs
+   1. Election RPCs
+   1. command line locks
+   1. command line elections
+   1. recipes
+1. Linearizable reads
+1. Multi-version concurrency control
+1. Transactions
+   1. Field compares
+   1. Read
+   1. Write
+1. Change notification
+   1. Historical and current key intervals
+1. User permissions
+
+## TBD
+
+1. Leases
+1. Locks
+1. Revisions
+   1. Monotonically increasing over lifetime of a cluster
+1. Transactions
+1. Watches
+1. Create_revisiona = revision when key was most recently created (after previous deletion if any)
+1. Mod_revision = revision when key was most recently modified 
+1. version = version number since creation i.e. count of modifications since creation
+1. generations
+1. key tombstone
