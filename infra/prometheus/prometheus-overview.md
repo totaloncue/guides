@@ -50,6 +50,8 @@ docker run -it -d \
 ## Node Exporter Overview
 
 1. Designed to monitor the host system
+1. Start as daemon:
+
 1. NOT recommended to run as a Docker container as it requires access to the host
    1. Instead, install and run it as a systemd service?
 
