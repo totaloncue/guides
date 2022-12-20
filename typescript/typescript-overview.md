@@ -33,3 +33,5 @@ npx tsc
 ## Terms
 
 1. Definitely Typed?
+	1. Community-sourced type definitions for node, npm packages
+	1. Generally matches pattern of @types/<npm-package-name> to get types for the specified package e.g. @types/node
