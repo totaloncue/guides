@@ -12,20 +12,27 @@
 ## Setup
 
 1. Add typescript as a development dependency into the project if not globally installed
+
 ```shell
 npm install typescript --save-dev
 ```
+
 1. Install support for ambient types
+
 ```shell
 npm install @types/node --save-dev
 ```
+
 1. Create tsconfig.json
+
 ```shell
 npx tsc --init --rootDir src --outDir build \
 --esModuleInterop --resolveJsonModule --lib es6 \
 --module commonjs --allowJs true --noImplicitAny true
 ```
+
 1. Compile typescript code
+
 ```shell
 npx tsc
 ```
@@ -33,5 +40,7 @@ npx tsc
 ## Terms
 
 1. Definitely Typed?
-	1. Community-sourced type definitions for node, npm packages
-	1. Generally matches pattern of @types/<npm-package-name> to get types for the specified package e.g. @types/node
+    1. Community-sourced type definitions for node, npm packages
+    1. Generally matches pattern of @types/npm-package-name to get types for
+    the specified package e.g. @types/node
+    1. Search npm for types package
