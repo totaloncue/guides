@@ -1,5 +1,7 @@
 # Overview of IAM on AWS
 
+## Key terms and concepts
+
 1. Workload = collection of resources + code that delivers business value
     1. e.g. applications, opeartional tools and components
 1. Principal = human user or workload
