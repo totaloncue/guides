@@ -23,3 +23,9 @@
     1. They enter SUSPENDED state
 1. Can suspended accounts be re-instated?
     1. Only by contacting customer service
+1. How can I manage multiple accounts from the CLI
+1. What is the relation to AWS IAM Identity Center?
+1. What are 'services' within AWS Organizations?
+1. What are service control policies and how are they implemented?
+
+## IAM Identity Center
