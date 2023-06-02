@@ -27,5 +27,3 @@
 1. What is the relation to AWS IAM Identity Center?
 1. What are 'services' within AWS Organizations?
 1. What are service control policies and how are they implemented?
-
-## IAM Identity Center
