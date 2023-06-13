@@ -27,3 +27,7 @@
 1. What is the relation to AWS IAM Identity Center?
 1. What are 'services' within AWS Organizations?
 1. What are service control policies and how are they implemented?
+1. Connect with Azure AD:
+    1. [Guide on AWS docs](https://docs.aws.amazon.com/singlesignon/latest/userguide/azure-ad-idp.html)
+    1. [Azure guide](https://learn.microsoft.com/en-us/azure/active-directory/saas-apps/aws-single-sign-on-tutorial)
+    1. [Automated user provisioning guide](https://learn.microsoft.com/en-us/azure/active-directory/saas-apps/aws-single-sign-on-provisioning-tutorial)
