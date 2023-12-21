@@ -79,6 +79,12 @@
    1. zc
 1. Alternate folds
    1. za
+1. Close fold-levels
+    1. zm zM (capitalized = full-close)
+1. Open fold-level
+    1. zr zR (capitalized = full-open)
+1. Reset folds
+    1. zx
 
 ## Visual mode/marking text
 

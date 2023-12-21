@@ -1,6 +1,7 @@
 # Overview of globbing
 
 1. 'glob'al -- originated in earliest versions of Unix
+1. Primarily used for matching filenames and filepaths in a shell environment
 1. Specify text patterns using wildcard characters
 1. Expand a wildcard pattern into the list of matching pathnames
 
